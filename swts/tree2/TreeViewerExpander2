@@ -1,0 +1,68 @@
+import org.eclipse.jface.viewers.ITreeContentProvider;
+import org.eclipse.jface.viewers.TreeViewer;
+
+import java.util.ArrayList;
+import java.util.Map;
+
+public class TreeViewerExpander {
+
+    private final TreeViewer treeViewer;
+    private final Map<Integer, ArrayList<Integer>> dataMap;
+
+    // 생성자에서 TreeViewer와 데이터 맵을 받아 설정
+    public TreeViewerExpander(TreeViewer treeViewer, Map<Integer, ArrayList<Integer>> dataMap) {
+        this.treeViewer = treeViewer;
+        this.dataMap = dataMap;
+    }
+
+    /**
+     * 특정 조건에 맞는 노드를 지정된 깊이까지 확장하고, 나머지 노드를 축소하는 메서드.
+     *
+     * @param condition 노드 확장 조건을 정의하는 NodeCondition
+     * @param maxDepth  트리를 탐색할 최대 깊이
+     */
+    public void expandNodesMatchingCondition(NodeCondition condition, int maxDepth) {
+        Object root = treeViewer.getInput();
+        if (root != null) {
+            expandOrCollapseNode(root, condition, 0, maxDepth);
+        }
+    }
+
+    // 노드를 순회하면서 조건에 따라 열거나 닫기
+    private void expandOrCollapseNode(Object node, NodeCondition condition, int currentDepth, int maxDepth) {
+        if (currentDepth > maxDepth) {
+            return;
+        }
+
+        ITreeContentProvider provider = (ITreeContentProvider) treeViewer.getContentProvider();
+        boolean shouldExpand = condition.matches(node);
+
+        if (shouldExpand) {
+            treeViewer.setExpandedState(node, true);
+        } else {
+            treeViewer.setExpandedState(node, false);
+        }
+
+        // 자식 노드에 대해서도 재귀적으로 처리
+        ArrayList<Integer> children = getChildren(node);
+        if (children != null && !children.isEmpty() && currentDepth < maxDepth) {
+            for (Integer child : children) {
+                expandOrCollapseNode(child, condition, currentDepth + 1, maxDepth);
+            }
+        }
+    }
+
+    // 데이터 맵에서 자식 노드를 가져오는 메서드
+    private ArrayList<Integer> getChildren(Object node) {
+        if (node instanceof Integer) {
+            return dataMap.get(node);
+        }
+        return null;
+    }
+
+    // 조건을 정의하기 위한 인터페이스
+    @FunctionalInterface
+    public interface NodeCondition {
+        boolean matches(Object node);
+    }
+}
