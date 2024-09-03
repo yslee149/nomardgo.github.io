@@ -66,3 +66,5 @@ public class TreeViewerExpander {
         boolean matches(Object node);
     }
 }
+
+// expander.expandNodesMatchingCondition(node -> (int) node % 2 == 0, 2);
