@@ -52,3 +52,19 @@ column1.setLabelProvider(new DepthAwareCellLabelProvider(treeViewer));
 
 // TreeViewer 초기화
 treeViewer.setInput(1);
+
+/////////////
+
+
+// 문자열을 주어진 횟수만큼 반복하는 헬퍼 메서드
+public static String repeat(String str, int times) {
+    if (times <= 0) {
+        return "";
+    }
+    StringBuilder repeated = new StringBuilder();
+    for (int i = 0; i < times; i++) {
+        repeated.append(str);
+    }
+    return repeated.toString();
+}
+
