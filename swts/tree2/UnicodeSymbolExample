@@ -1,0 +1,31 @@
+public class UnicodeSymbolExample {
+    public static void main(String[] args) {
+        // 1. 좌측에만 데이터가 있다는 표시 (왼쪽 방향 기호)
+        String leftArrow1 = "\u25C0 데이터";    // ◀ : U+25C0
+        String leftArrow2 = "\u23F4 데이터";    // ⏴ : U+23F4
+        String leftArrow3 = "\u2190 데이터";    // ← : U+2190
+
+        // 2. 우측에만 데이터가 있다는 표시 (오른쪽 방향 기호)
+        String rightArrow1 = "데이터 \u25B6";   // ▶ : U+25B6
+        String rightArrow2 = "데이터 \u23F5";   // ⏵ : U+23F5
+        String rightArrow3 = "데이터 \u2192";   // → : U+2192
+
+        // 3. 서로 다른 데이터라는 표시 (다름을 나타내는 기호)
+        String differentData1 = "데이터1 \u2260 데이터2";   // ≠ : U+2260
+        String differentData2 = "데이터1 \u21D4 데이터2";   // ⇔ : U+21D4
+        String differentData3 = "데이터1 \u2262 데이터2";   // ≢ : U+2262
+
+        // 출력
+        System.out.println(leftArrow1);    // 출력: ◀ 데이터
+        System.out.println(leftArrow2);    // 출력: ⏴ 데이터
+        System.out.println(leftArrow3);    // 출력: ← 데이터
+
+        System.out.println(rightArrow1);   // 출력: 데이터 ▶
+        System.out.println(rightArrow2);   // 출력: 데이터 ⏵
+        System.out.println(rightArrow3);   // 출력: 데이터 →
+
+        System.out.println(differentData1); // 출력: 데이터1 ≠ 데이터2
+        System.out.println(differentData2); // 출력: 데이터1 ⇔ 데이터2
+        System.out.println(differentData3); // 출력: 데이터1 ≢ 데이터2
+    }
+}
