@@ -1,0 +1,101 @@
+package com.test.tree45;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Rectangle;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeColumn;
+import org.eclipse.swt.widgets.TreeItem;
+
+public class TreeTableCustomSelection {
+
+    public static void main(String[] args) {
+        final Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("Custom selection for Tree");
+        shell.setLayout(new FillLayout());
+        
+        // Tree 생성
+        final Tree tree = new Tree(shell, SWT.MULTI | SWT.FULL_SELECTION);
+        tree.setHeaderVisible(true);
+        tree.setLinesVisible(true);
+        
+        // 컬럼 추가
+        int columnCount = 4;
+        for (int i = 0; i < columnCount; i++) {
+            TreeColumn column = new TreeColumn(tree, SWT.NONE);
+            column.setText("Column " + i);
+            column.setWidth(150);
+        }
+
+        // 아이템 추가
+        int itemCount = 3;
+        for (int i = 0; i < itemCount; i++) {
+            TreeItem item1 = new TreeItem(tree, SWT.NONE);
+            item1.setText("item " + i);
+            for (int c = 1; c < columnCount; c++) {
+                item1.setText(c, "item [" + i + "-" + c + "]");
+            }
+            for (int j = 0; j < itemCount; j++) {
+                TreeItem item2 = new TreeItem(item1, SWT.NONE);
+                item2.setText("item [" + i + " " + j + "]");
+                for (int c = 1; c < columnCount; c++) {
+                    item2.setText(c, "item [" + i + " " + j + "-" + c + "]");
+                }
+                for (int k = 0; k < itemCount; k++) {
+                    TreeItem item3 = new TreeItem(item2, SWT.NONE);
+                    item3.setText("item [" + i + " " + j + " " + k + "]");
+                    for (int c = 1; c < columnCount; c++) {
+                        item3.setText(c, "item [" + i + " " + j + " " + k + "-" + c + "]");
+                    }
+                }
+            }
+        }
+
+        // EraseItem 이벤트를 통해 배경을 커스터마이즈
+        tree.addListener(SWT.EraseItem, new Listener() {
+            public void handleEvent(Event event) {
+                // 선택된 항목에 대해서만 처리
+                if ((event.detail & SWT.SELECTED) != 0) {
+                    GC gc = event.gc;
+                    Rectangle bounds = event.getBounds();
+                    Color defaultColor = display.getSystemColor(SWT.COLOR_LIST_SELECTION);
+                    Color specificColumnColor = display.getSystemColor(SWT.COLOR_GREEN);
+                    
+                    // 특정 컬럼에 대해 색상을 다르게 적용
+                    if (event.index == 1) {
+                        gc.setBackground(specificColumnColor); // 두 번째 컬럼은 초록색
+                    } else {
+                        gc.setBackground(defaultColor); // 나머지는 기본 선택색 (파란색)
+                    }
+                    
+                    // 단색으로 해당 항목의 배경을 설정
+                    gc.fillRectangle(bounds);
+                    
+                    // 기본 선택 상태를 제거하여 SWT가 다시 그리지 않도록 함
+                    event.detail &= ~SWT.SELECTED;
+                }
+            }
+        });
+
+        // 트리 열 크기 맞춤
+        for (int i = 0; i < columnCount; i++) {
+            tree.getColumn(i).pack();
+        }
+
+        shell.setSize(600, 400);
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        display.dispose();
+    }
+}
