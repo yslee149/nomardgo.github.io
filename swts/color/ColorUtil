@@ -1,0 +1,38 @@
+import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
+
+public class ColorUtil {
+
+    // 헥사코드를 받아서 SWT Color 객체로 변환하는 함수
+    public static Color getColorFromHex(Display display, String hex) {
+        RGB rgb = hexToRGB(hex);  // 헥사코드를 RGB로 변환
+        return new Color(display, rgb);  // RGB로 Color 객체 생성
+    }
+
+    // 시스템 컬러를 가져오는 함수 (예: SWT.COLOR_BLACK)
+    public static Color getSystemColor(Display display, int systemColorId) {
+        return display.getSystemColor(systemColorId);  // 시스템 컬러 가져오기
+    }
+
+    // 헥사코드를 RGB로 변환하는 함수
+    private static RGB hexToRGB(String hex) {
+        hex = hex.replace("#", "");  // '#' 문자 제거
+        int red = Integer.parseInt(hex.substring(0, 2), 16);  // R 값 추출
+        int green = Integer.parseInt(hex.substring(2, 4), 16);  // G 값 추출
+        int blue = Integer.parseInt(hex.substring(4, 6), 16);  // B 값 추출
+        return new RGB(red, green, blue);  // RGB 객체 반환
+    }
+
+    // RGB 값을 이용하여 Color 객체 생성
+    public static Color getColorFromRGB(Display display, int red, int green, int blue) {
+        return new Color(display, red, green, blue);  // RGB 값으로 Color 생성
+    }
+
+    // 특정 Color 객체를 안전하게 해제하는 함수
+    public static void disposeColor(Color color) {
+        if (color != null && !color.isDisposed()) {
+            color.dispose();  // Color 자원 해제
+        }
+    }
+}
