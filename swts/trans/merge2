@@ -1,0 +1,96 @@
+import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IProject;
+import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.ecore.resource.ResourceSet;
+import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
+import org.eclipse.emf.transaction.RecordingCommand;
+import org.eclipse.emf.transaction.TransactionalEditingDomain;
+import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ECoreFileProcessor {
+
+    // 전역 TransactionalEditingDomain
+    private static TransactionalEditingDomain domain;
+
+    public static void main(String[] args) throws Exception {
+        // 가정된 IProject가 주어졌다고 가정
+        IProject project = ...; // 실제로 Eclipse IProject가 제공되어야 합니다.
+        
+        // 특정 확장자를 가진 IFile만 선택
+        List<IFile> ecoreFiles = getEcoreFilesFromProject(project, "ecore");
+
+        // 파일을 ECore 모델로 변환하여 사용
+        for (IFile ecoreFile : ecoreFiles) {
+            processEcoreFile(ecoreFile);
+        }
+    }
+
+    /**
+     * 프로젝트 내에서 특정 확장자의 파일만 가져오기
+     * @param project IProject 객체
+     * @param extension 파일 확장자 (예: "ecore", "xmi")
+     * @return 필터링된 IFile 리스트
+     */
+    public static List<IFile> getEcoreFilesFromProject(IProject project, String extension) {
+        List<IFile> ecoreFiles = new ArrayList<>();
+
+        try {
+            // 프로젝트의 파일들을 재귀적으로 검색하여 확장자로 필터링
+            project.accept(resource -> {
+                if (resource instanceof IFile) {
+                    IFile file = (IFile) resource;
+                    if (file.getFileExtension().equals(extension)) {
+                        ecoreFiles.add(file);
+                    }
+                }
+                return true;
+            });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return ecoreFiles;
+    }
+
+    /**
+     * IFile을 ECore 모델로 로드하고 처리
+     * @param file IFile 객체 (ECore 파일)
+     */
+    public static void processEcoreFile(IFile file) throws Exception {
+        // TransactionalEditingDomain 생성 (한 번만 생성)
+        if (domain == null) {
+            domain = TransactionalEditingDomain.Factory.INSTANCE.createEditingDomain();
+        }
+
+        // 리소스 팩토리 등록 (XMI 또는 Ecore 파일 확장자에 따라 다름)
+        Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("ecore", new XMIResourceFactoryImpl());
+
+        // IFile을 ECore 모델로 변환
+        URI fileUri = URI.createPlatformResourceURI(file.getFullPath().toString(), true);
+        ResourceSet resourceSet = domain.getResourceSet();
+        Resource resource = resourceSet.getResource(fileUri, true);
+
+        // 트랜잭션을 사용하여 모델 수정
+        domain.getCommandStack().execute(new RecordingCommand(domain) {
+            @Override
+            protected void doExecute() {
+                // ECore 모델을 처리 (예: EClass 이름 변경)
+                for (EObject eObject : resource.getContents()) {
+                    if (eObject instanceof org.eclipse.emf.ecore.EClass) {
+                        org.eclipse.emf.ecore.EClass eClass = (org.eclipse.emf.ecore.EClass) eObject;
+                        eClass.setName(eClass.getName() + "_Modified");
+                        System.out.println("EClass 이름이 변경되었습니다: " + eClass.getName());
+                    }
+                }
+            }
+        });
+
+        // 변경된 리소스를 저장
+        resource.save(null);
+    }
+}
