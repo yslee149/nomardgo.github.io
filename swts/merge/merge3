@@ -1,0 +1,47 @@
+import java.lang.reflect.Array;
+import java.util.Collection;
+import java.util.Map;
+
+public class ObjectUtils {
+
+    public static boolean isEmpty(Object object) {
+        // null 체크
+        if (object == null) {
+            return true;
+        }
+
+        // String 체크
+        if (object instanceof String) {
+            return ((String) object).isEmpty();
+        }
+
+        // Collection (List, Set 등) 체크
+        if (object instanceof Collection) {
+            return ((Collection<?>) object).isEmpty();
+        }
+
+        // Map 체크
+        if (object instanceof Map) {
+            return ((Map<?, ?>) object).isEmpty();
+        }
+
+        // 배열 체크
+        if (object.getClass().isArray()) {
+            return Array.getLength(object) == 0;
+        }
+
+        // 그 외 객체는 비어 있지 않다고 판단
+        return false;
+    }
+
+    public static void main(String[] args) {
+        // 테스트
+        System.out.println(isEmpty(null)); // true
+        System.out.println(isEmpty("")); // true
+        System.out.println(isEmpty("Hello")); // false
+        System.out.println(isEmpty(new int[]{})); // true
+        System.out.println(isEmpty(new int[]{1, 2, 3})); // false
+        System.out.println(isEmpty(new java.util.ArrayList<>())); // true
+        System.out.println(isEmpty(new java.util.HashMap<>())); // true
+    }
+}
