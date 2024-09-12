@@ -1,0 +1,65 @@
+import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.diff.Diff;
+import org.eclipse.emf.compare.merge.BatchMerger;
+import org.eclipse.emf.compare.merge.IMerger;
+import org.eclipse.emf.compare.scope.DefaultComparisonScope;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class MergeWithParentCheck {
+    public static void main(String[] args) {
+        // 두 개의 Ecore 리소스 로드 (왼쪽과 오른쪽 모델)
+        Resource leftResource = ...;  // 왼쪽 모델
+        Resource rightResource = ...; // 오른쪽 모델
+
+        // EMF Compare 사용하여 두 리소스 비교
+        DefaultComparisonScope scope = new DefaultComparisonScope(leftResource, rightResource, null);
+        Comparison comparison = EMFCompare.builder().build().compare(scope);
+
+        // IMerger 설정
+        IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
+        BatchMerger merger = new BatchMerger(mergerRegistry);
+
+        // 필터링된 Diff 리스트 (부모-자식 관계를 고려한 순서로 처리)
+        List<Diff> diffsToMerge = new ArrayList<>();
+
+        // 1. 부모 객체를 먼저 머지
+        for (Diff diff : comparison.getDifferences()) {
+            EObject parent = diff.getMatch().getRight().eContainer();  // 부모 객체 가져오기
+            if (parent == null || comparison.getMatch(parent).getLeft() == null) {
+                // 부모가 아직 왼쪽 모델에 머지되지 않았으면 먼저 머지
+                diffsToMerge.add(diff);
+            }
+        }
+
+        // 부모 객체를 먼저 오른쪽에서 왼쪽으로 복사
+        merger.copyAllRightToLeft(diffsToMerge, null); // Monitor 객체로 null 전달
+
+        // 2. 자식 객체를 머지 (부모가 먼저 존재할 때)
+        diffsToMerge.clear();  // 리스트 초기화
+
+        for (Diff diff : comparison.getDifferences()) {
+            EObject parent = diff.getMatch().getRight().eContainer();
+            if (parent != null && comparison.getMatch(parent).getLeft() != null) {
+                // 부모가 이미 왼쪽 모델에 머지된 경우 자식 객체를 처리
+                diffsToMerge.add(diff);
+            }
+        }
+
+        // 자식 객체를 오른쪽에서 왼쪽으로 복사
+        merger.copyAllRightToLeft(diffsToMerge, null);
+    }
+}
+
+
+---
+
+IMerger.Registry mergerRegistry = IMerger.RegistryImpl.createStandaloneInstance();
+BatchMerger merger = new BatchMerger(mergerRegistry);
+
+// Monitor로 null 전달하여 부모-자식 관계를 자동으로 처리
+merger.copyAllRightToLeft(comparison.getDifferences(), null);
