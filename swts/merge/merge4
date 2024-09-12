@@ -65,3 +65,17 @@ public class EMFCompareDiffOutput {
         System.out.println("Diff source: " + diff.getSource()); // 왼쪽, 오른쪽 또는 양쪽
     }
 }
+
+
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.resource.Resource;
+import org.eclipse.emf.common.util.URI;
+
+public URI getEObjectURI(EObject eObject) {
+    if (eObject.eResource() != null) {
+        Resource resource = eObject.eResource();
+        URI uri = resource.getURI().appendFragment(resource.getURIFragment(eObject));
+        return uri;
+    }
+    return null;
+}
