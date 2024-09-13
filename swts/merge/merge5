@@ -1,0 +1,32 @@
+public EReference findContainerReference(EObject eObject) {
+    // 상위 객체 (container)를 가져옴
+    EObject container = eObject.eContainer();
+    
+    // container가 없으면 null 반환
+    if (container == null) {
+        return null;
+    }
+
+    // 상위 객체의 모든 EReference를 확인하여, 해당 eObject를 담고 있는 containment reference를 찾음
+    for (EReference reference : container.eClass().getEAllReferences()) {
+        // containment reference인지 확인
+        if (reference.isContainment()) {
+            Object value = container.eGet(reference);
+            
+            // reference가 리스트(EList)인 경우 (1대N 관계)
+            if (value instanceof EList<?>) {
+                EList<?> list = (EList<?>) value;
+                if (list.contains(eObject)) {
+                    return reference;  // eObject가 리스트에 포함되어 있으면 이 reference가 container 역할을 함
+                }
+            } 
+            // reference가 단일 객체인 경우 (1대1 관계)
+            else if (value == eObject) {
+                return reference;  // eObject가 직접 담긴 reference가 container 역할을 함
+            }
+        }
+    }
+    
+    // container reference를 찾지 못하면 null 반환
+    return null;
+}
