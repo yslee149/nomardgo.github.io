@@ -30,3 +30,38 @@ public EReference findContainerReference(EObject eObject) {
     // container reference를 찾지 못하면 null 반환
     return null;
 }
+
+
+
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EStructuralFeature;
+
+public void addToEObjectContainmentEList(EObject containerObject, EObject newEObject, String featureName) {
+    // featureName 속성을 가져옴
+    EStructuralFeature feature = containerObject.eClass().getEStructuralFeature(featureName);
+
+    if (feature == null) {
+        System.out.println("속성 '" + featureName + "'을(를) 찾을 수 없습니다.");
+        return;
+    }
+
+    // 속성 값 가져오기
+    Object value = containerObject.eGet(feature);
+
+    // 속성이 EList(EObjectContainmentEList)인지 확인
+    if (value instanceof EObjectContainmentEList<?>) {
+        // EList에 새 EObject 추가
+        EObjectContainmentEList<EObject> containmentList = (EObjectContainmentEList<EObject>) value;
+        containmentList.add(newEObject);
+        System.out.println("새로운 객체가 EObjectContainmentEList에 추가되었습니다.");
+    } else if (value instanceof EList<?>) {
+        // 일반 EList일 경우에도 추가 가능
+        EList<EObject> list = (EList<EObject>) value;
+        list.add(newEObject);
+        System.out.println("새로운 객체가 일반 EList에 추가되었습니다.");
+    } else {
+        System.out.println("해당 속성은 EList가 아닙니다.");
+    }
+}
