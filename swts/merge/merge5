@@ -65,3 +65,178 @@ public void addToEObjectContainmentEList(EObject containerObject, EObject newEOb
         System.out.println("해당 속성은 EList가 아닙니다.");
     }
 }
+
+---------------------------------------
+
+EMF Compare를 사용하면 두 Ecore 모델 간의 차이점을 비교하고, 차이점에 따라 자동으로 병합 작업을 수행할 수 있습니다. EMF Compare는 두 모델을 비교하여 차이점(Diff)을 제공하며, 그런 차이점들을 바탕으로 병합 작업을 할 수 있습니다.
+
+EMF Compare를 사용하여 두 EObject 간의 차이를 비교하고, 그 차이를 바탕으로 자동으로 병합(즉, 오른쪽 모델에서 왼쪽 모델로 자동 추가)하는 방법은 다음과 같습니다.
+
+EMF Compare를 이용한 자동 병합 절차
+모델 간 비교: 두 개의 EObject를 비교하여 차이점을 도출합니다.
+차이점 기반 병합: 차이점 중에서 containment reference를 통해 자동으로 병합할 부분을 찾아 병합합니다.
+EMF Compare 설정 및 병합 코드
+1. 비교 설정 및 차이점 도출
+먼저 두 EObject를 비교하고, 차이점을 도출하는 코드를 작성합니다.
+
+java
+코드 복사
+import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.diff.metamodel.Diff;
+import org.eclipse.emf.compare.scope.IComparisonScope;
+import org.eclipse.emf.compare.scope.DefaultComparisonScope;
+import org.eclipse.emf.ecore.EObject;
+
+public Comparison compareEObjects(EObject leftEObject, EObject rightEObject) {
+    // EMF Compare를 위한 비교 스코프 설정 (왼쪽, 오른쪽, 기준 없음)
+    IComparisonScope scope = new DefaultComparisonScope(leftEObject, rightEObject, null);
+    
+    // EMF Compare를 사용해 비교 작업 수행
+    EMFCompare compare = EMFCompare.builder().build();
+    Comparison comparison = compare.compare(scope);
+
+    return comparison;
+}
+2. 차이점 기반 병합
+도출된 차이점들을 이용하여, containment reference의 차이만 골라서 왼쪽 모델에 병합하는 코드를 작성합니다.
+
+java
+코드 복사
+import org.eclipse.emf.common.util.Monitor;
+import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.compare.merge.BatchMerger;
+import org.eclipse.emf.compare.merge.IMerger;
+import org.eclipse.emf.compare.merge.IMerger.RegistryImpl;
+import org.eclipse.emf.compare.diff.metamodel.Diff;
+
+public void mergeDifferences(Comparison comparison) {
+    // EMF Compare 기본 머저(merger)를 생성
+    IMerger.Registry mergerRegistry = new RegistryImpl();
+    BatchMerger merger = new BatchMerger(mergerRegistry);
+
+    // 차이점 중 왼쪽으로 병합해야 하는 부분을 병합
+    merger.copyAllRightToLeft(comparison.getDifferences(), Monitor.NULL);
+}
+3. 통합된 자동 비교 및 병합 함수
+이제 위의 비교 및 병합을 하나의 함수로 통합하여, 두 EObject를 비교하고 차이점을 자동으로 병합하는 전체 로직을 작성합니다.
+
+java
+코드 복사
+import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.ecore.EObject;
+
+public void autoMergeUsingEMFCompare(EObject leftEObject, EObject rightEObject) {
+    // 1. 두 EObjects 간 비교 작업 수행
+    Comparison comparison = compareEObjects(leftEObject, rightEObject);
+    
+    // 2. 차이점을 기반으로 왼쪽으로 자동 병합 수행
+    mergeDifferences(comparison);
+}
+사용 예시
+java
+코드 복사
+EObject leftModel = ...;  // 왼쪽 모델 (예: 기존 모델)
+EObject rightModel = ...; // 오른쪽 모델 (예: 변경된 모델)
+
+// EMF Compare를 사용해 오른쪽 모델에서 왼쪽 모델로 차이점 병합
+autoMergeUsingEMFCompare(leftModel, rightModel);
+동작 방식
+EMF Compare 비교: 두 EObject를 비교하여 차이점을 도출합니다.
+차이점 병합: BatchMerger를 사용하여 오른쪽에서 왼쪽으로 모든 차이점을 병합합니다. 이는 모델 간 차이점이 containment reference에 해당하는 경우 자동으로 하위 객체가 추가됩니다.
+자동 병합: 특정 속성이나 feature를 하드코딩하지 않아도, EMF Compare가 두 모델 간의 모든 차이점을 분석하여 필요한 부분을 병합해 줍니다.
+추가 고려 사항
+세부 차이점 필터링: 차이점을 선택적으로 병합하고 싶다면, comparison.getDifferences()를 순회하면서 특정 Diff만 골라 병합할 수 있습니다.
+트랜잭션 관리: TransactionalEditingDomain을 사용해 병합 시 트랜잭션을 적용할 수 있습니다.
+EMF Compare를 통해 두 Ecore 모델 간의 차이를 쉽게 분석하고, 원하는 방식으로 자동 병합하는 작업을 수행할 수 있습니다.
+
+------------------------------------
+
+EMF Compare를 사용하여 두 EObject 간의 차이점(Diff)을 도출한 후, 세부적으로 차이점만 선택적으로 병합하려면, 도출된 Diff 객체를 분석한 후 필터링하는 작업이 필요합니다. EMF Compare는 여러 유형의 차이점(Diff)을 제공하며, 이를 통해 특정 속성에 대한 차이점만 병합할 수 있습니다.
+
+세부 차이점 필터링 방법
+EMF Compare가 도출하는 차이점(Diff)은 여러 가지 형태가 있습니다. 여기에는 속성 값의 차이(AttributeChange), 참조 변경(ReferenceChange), 객체의 추가/삭제(AddElement, RemoveElement) 등이 포함됩니다.
+
+1. 차이점(Diff)의 유형 이해
+AttributeChange: 속성(예: 문자열 값)의 변경.
+ReferenceChange: 참조 객체의 변경 또는 추가/삭제.
+AddElement, RemoveElement: 모델에 객체가 추가되거나 삭제된 경우.
+ContainmentChange: containment reference 내 객체가 추가 또는 삭제된 경우.
+이를 이용해 원하는 차이점만 선택적으로 병합할 수 있습니다.
+
+필터링 및 선택적 병합 코드
+1. 필터링을 위한 병합 함수
+java
+코드 복사
+import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.compare.Diff;
+import org.eclipse.emf.compare.diff.metamodel.AttributeChange;
+import org.eclipse.emf.compare.diff.metamodel.ReferenceChange;
+import org.eclipse.emf.compare.merge.IMerger;
+import org.eclipse.emf.compare.merge.BatchMerger;
+import org.eclipse.emf.compare.merge.IMerger.RegistryImpl;
+import org.eclipse.emf.common.util.Monitor;
+
+public void mergeSelectedDifferences(Comparison comparison) {
+    // EMF Compare 머저(merger)를 설정
+    IMerger.Registry mergerRegistry = new RegistryImpl();
+    BatchMerger merger = new BatchMerger(mergerRegistry);
+
+    // 병합할 Diff 목록 생성
+    List<Diff> diffsToMerge = new ArrayList<>();
+
+    // 차이점을 하나씩 필터링
+    for (Diff diff : comparison.getDifferences()) {
+        // 속성 변경 사항에 대해서만 병합
+        if (diff instanceof AttributeChange) {
+            AttributeChange attributeChange = (AttributeChange) diff;
+
+            // 특정 속성의 변경 사항만 병합
+            if ("specificAttribute".equals(attributeChange.getAttribute().getName())) {
+                diffsToMerge.add(diff);
+            }
+        }
+
+        // 참조 변경 사항에 대해서만 병합
+        if (diff instanceof ReferenceChange) {
+            ReferenceChange referenceChange = (ReferenceChange) diff;
+
+            // 특정 참조에 대한 변경 사항만 병합
+            if ("specificReference".equals(referenceChange.getReference().getName())) {
+                diffsToMerge.add(diff);
+            }
+        }
+    }
+
+    // 선택된 Diff들만 병합 (오른쪽에서 왼쪽으로)
+    merger.copyAllRightToLeft(diffsToMerge, Monitor.NULL);
+}
+2. 세부 차이점 필터링 설명
+comparison.getDifferences(): 비교 결과에서 모든 차이점(Diff)을 가져옵니다.
+AttributeChange 필터링: 속성 값의 차이를 나타내는 AttributeChange를 필터링하여, 특정 속성(예: specificAttribute)에 대한 변경 사항만 병합합니다.
+ReferenceChange 필터링: 참조 객체의 변경 사항을 나타내는 ReferenceChange를 필터링하여, 특정 참조(예: specificReference)에 대한 변경만 병합합니다.
+선택적 병합: 선택된 차이점(Diff)들만 병합 작업을 수행합니다.
+3. 예시
+java
+코드 복사
+EObject leftModel = ...;  // 왼쪽 모델
+EObject rightModel = ...; // 오른쪽 모델
+
+// 두 모델을 비교
+Comparison comparison = compareEObjects(leftModel, rightModel);
+
+// 특정 차이점만 병합
+mergeSelectedDifferences(comparison);
+4. 차이점 필터링 기준
+필터링 기준은 다음과 같습니다:
+
+특정 속성의 변경: 특정 속성(예: "specificAttribute")에 대해서만 병합할 수 있습니다.
+특정 참조의 변경: 특정 참조(예: "specificReference")에 대해서만 병합할 수 있습니다.
+객체 추가/삭제: 특정 객체가 추가되거나 삭제된 경우에만 병합할 수 있습니다.
+Containment 차이: 특정 containment reference에 속한 객체의 변경 사항만 병합할 수 있습니다.
+5. 병합 전략
+EMF Compare는 다음과 같은 병합 전략을 제공합니다:
+
+Right to Left: 오른쪽 모델에서 왼쪽 모델로 차이점 병합.
+Left to Right: 왼쪽 모델에서 오른쪽 모델로 차이점 병합.
+필터링된 차이점을 이용해 선택적으로 모델을 병합할 수 있으며, 속성, 참조, 객체 추가/삭제 등 세부적인 기준에 맞춰 유연하게 처리할 수 있습니다.
