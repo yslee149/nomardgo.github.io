@@ -311,3 +311,89 @@ public class PathIdGenerator {
         return path.substring(0, lastSlashIndex);
     }
 }
+
+-----------------------------------
+
+
+import java.util.HashMap;
+import java.util.Map;
+
+public class PathIdGenerator {
+
+    // 경로별 아이디와 부모아이디를 저장할 맵
+    private static Map<String, Integer> idMap = new HashMap<>();
+    private static Map<String, Integer> parentIdMap = new HashMap<>();
+    private static Map<String, String> typeMap = new HashMap<>(); // 경로 타입 저장 (파일/폴더)
+    private static int currentId = 0;
+
+    public static void main(String[] args) {
+        // 경로 리스트
+        String[] paths = {
+            "/data/ccc.txt", 
+            "/data/data1/aaa.txt", 
+            "/data/data1/bbb.txt", 
+            "/data/data1/data2/bbb.txt", 
+            "/data/data1/data2/ddd.txt", 
+            "/data/data1",           // 폴더
+            "/data/data1/data2"       // 폴더
+        };
+
+        for (String path : paths) {
+            assignIdAndParentId(path);
+        }
+
+        // 결과 출력
+        for (String path : paths) {
+            System.out.println("Path: " + path 
+                + ", ID: " + idMap.get(path) 
+                + ", Parent ID: " + parentIdMap.get(path) 
+                + ", Type: " + typeMap.get(path));
+        }
+    }
+
+    // 아이디와 부모 아이디를 할당하는 메서드
+    public static void assignIdAndParentId(String path) {
+        // 이미 처리된 경로는 건너뜀
+        if (!idMap.containsKey(path)) {
+            // 슬래시(/)로 경로 분리
+            String parentPath = getParentPath(path);
+
+            // 부모 경로가 존재하는 경우 부모 경로부터 먼저 처리
+            if (parentPath != null && !idMap.containsKey(parentPath)) {
+                assignIdAndParentId(parentPath);
+            }
+
+            // 현재 경로에 대해 ID 및 Parent ID 설정
+            idMap.put(path, currentId);
+            if (parentPath != null) {
+                parentIdMap.put(path, idMap.get(parentPath));
+            } else {
+                parentIdMap.put(path, -1);  // 최상위 경로는 parentId를 -1로 설정
+            }
+
+            // 경로 타입 설정 (파일 또는 폴더)
+            typeMap.put(path, isFile(path) ? "File" : "Folder");
+
+            currentId++;
+        }
+    }
+
+    // 주어진 경로의 부모 경로를 문자열로 반환
+    public static String getParentPath(String path) {
+        int lastSlashIndex = path.lastIndexOf('/');
+
+        // 루트 경로만 있는 경우 null 반환
+        if (lastSlashIndex <= 0) {
+            return null;
+        }
+
+        // 마지막 슬래시 앞의 경로 반환
+        return path.substring(0, lastSlashIndex);
+    }
+
+    // 경로가 파일인지 폴더인지 구분하는 메서드
+    public static boolean isFile(String path) {
+        // 파일은 "."을 포함한 확장자가 있다고 가정
+        return path.contains(".");
+    }
+}
