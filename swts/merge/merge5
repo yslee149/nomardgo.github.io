@@ -496,3 +496,69 @@ public class DepthCalculator {
 
 
 --------------
+
+import java.util.*;
+
+public class DepthCalculator {
+
+    public static void main(String[] args) {
+        // 주어진 데이터를 배열로 생성
+        int[] ids = {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
+        int[] parentIds = {-1, 0, 0, 2, 3, 0, 2, 2, 0, 3, 3, 3, 2};
+        String[] filePaths = {
+                "",
+                "Bswnd_E2EXf.arxml",
+                "ECU",
+                "ECU/MCal",
+                "ECU/Mcal/Ecu_Can.arxml",
+                "ECU/ConfigruationParamater.arxml",
+                "ECU/Ecud_CanCM.arxml",
+                "ECU/ECUCD_EucVAlueCollection.arxml",
+                "Ecucd_arxml",
+                "ECU/Mcal/Ecud_Adc.arxml",
+                "ECU/Mcal/Ecud_Abase.arxml",
+                "ECU/Mcal/Ecud_Dec.arxml",
+                "ECU/Ecud_b2.arxml"
+        };
+
+        // parentMap 생성: id를 키로 하고 parentId를 값으로 가진다
+        Map<Integer, Integer> parentMap = new HashMap<>();
+        for (int i = 0; i < ids.length; i++) {
+            parentMap.put(ids[i], parentIds[i]);
+        }
+
+        // 깊이를 저장할 depthMap 생성
+        Map<Integer, Integer> depthMap = new HashMap<>();
+
+        // 각 노드의 깊이 계산
+        for (int id : ids) {
+            computeDepth(id, parentMap, depthMap, new HashSet<>());
+        }
+
+        // 결과 출력
+        for (int i = 0; i < ids.length; i++) {
+            int depth = depthMap.get(ids[i]);
+            System.out.println("ID: " + ids[i] + ", Depth: " + depth + ", FilePath: " + filePaths[i]);
+        }
+    }
+
+    private static int computeDepth(int id, Map<Integer, Integer> parentMap, Map<Integer, Integer> depthMap, Set<Integer> visited) {
+        if (depthMap.containsKey(id)) {
+            return depthMap.get(id);
+        }
+        if (visited.contains(id)) {
+            throw new IllegalArgumentException("순환 참조가 감지되었습니다: ID " + id);
+        }
+        visited.add(id);
+        Integer parentId = parentMap.get(id);
+        int depth;
+        if (parentId == null || parentId == -1) {
+            depth = 0;
+        } else {
+            depth = computeDepth(parentId, parentMap, depthMap, visited) + 1;
+        }
+        depthMap.put(id, depth);
+        visited.remove(id);
+        return depth;
+    }
+}
