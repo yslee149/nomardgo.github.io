@@ -284,3 +284,159 @@ public class TreeViewerSelectionExample {
         return -1; // 찾지 못한 경우
     }
 }
+
+========================================================================================================
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.*;
+
+import org.eclipse.jface.viewers.*;
+
+public class TreeViewerSelectionColumnExample {
+
+    public static void main(String[] args) {
+        // Display와 Shell 생성
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("TreeViewer Selection Column Example");
+        shell.setSize(600, 400);
+        shell.setLayout(new FillLayout());
+
+        // TreeViewer 생성
+        TreeViewer treeViewer = new TreeViewer(shell, SWT.BORDER | SWT.FULL_SELECTION);
+        Tree tree = treeViewer.getTree();
+        tree.setHeaderVisible(true);
+
+        // 컬럼 생성
+        String[] titles = { "이름", "설명", "상태" };
+        for (String title : titles) {
+            TreeColumn column = new TreeColumn(tree, SWT.NONE);
+            column.setText(title);
+            column.setWidth(150);
+        }
+
+        // 샘플 데이터 모델 클래스
+        class MyModel {
+            String name;
+            String description;
+            String status;
+
+            MyModel(String name, String description, String status) {
+                this.name = name;
+                this.description = description;
+                this.status = status;
+            }
+        }
+
+        // 샘플 데이터 추가
+        MyModel[] data = new MyModel[5];
+        for (int i = 0; i < 5; i++) {
+            data[i] = new MyModel("아이템 " + (i + 1), "설명 " + (i + 1), "상태 " + (i + 1));
+        }
+        treeViewer.setContentProvider(new ArrayContentProvider());
+        treeViewer.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public void update(ViewerCell cell) {
+                MyModel model = (MyModel) cell.getElement();
+                switch (cell.getColumnIndex()) {
+                    case 0:
+                        cell.setText(model.name);
+                        break;
+                    case 1:
+                        cell.setText(model.description);
+                        break;
+                    case 2:
+                        cell.setText(model.status);
+                        break;
+                }
+            }
+        });
+        treeViewer.setInput(data);
+
+        // 클릭된 컬럼 인덱스를 저장할 변수
+        final int[] clickedColumnIndex = new int[1];
+        clickedColumnIndex[0] = -1; // 초기값
+
+        // 마우스 클릭 이벤트 처리
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                Point point = new Point(e.x, e.y);
+                TreeItem item = tree.getItem(point);
+
+                if (item != null) {
+                    // 클릭된 컬럼 인덱스 계산
+                    int columnIndex = getColumnIndex(tree, point);
+                    clickedColumnIndex[0] = columnIndex;
+
+                    // 클릭된 셀의 값 출력 (디버깅용)
+                    System.out.println("클릭된 컬럼 인덱스: " + columnIndex);
+                    System.out.println("클릭된 셀의 값: " + item.getText(columnIndex));
+                } else {
+                    clickedColumnIndex[0] = -1; // 아이템이 없는 곳 클릭 시 초기화
+                }
+            }
+        });
+
+        // SelectionChangedListener 추가
+        treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                // 현재 선택된 값을 직접 가져오기
+                IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
+                Object element = selection.getFirstElement();
+
+                if (element != null && clickedColumnIndex[0] != -1) {
+                    MyModel model = (MyModel) element;
+                    int columnIndex = clickedColumnIndex[0];
+
+                    // 선택된 요소와 컬럼 정보를 사용
+                    System.out.println("선택된 요소: " + model.name);
+                    System.out.println("클릭된 컬럼 인덱스: " + columnIndex);
+                    System.out.println("클릭된 컬럼 이름: " + titles[columnIndex]);
+
+                    // 클릭된 컬럼에 따른 동작 수행
+                    switch (columnIndex) {
+                        case 0:
+                            // 첫 번째 컬럼 클릭 시 동작
+                            System.out.println("이름 컬럼 클릭됨");
+                            break;
+                        case 1:
+                            // 두 번째 컬럼 클릭 시 동작
+                            System.out.println("설명 컬럼 클릭됨");
+                            break;
+                        case 2:
+                            // 세 번째 컬럼 클릭 시 동작
+                            System.out.println("상태 컬럼 클릭됨");
+                            break;
+                    }
+                }
+            }
+        });
+
+        // Shell 열기
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+
+        // 자원 해제
+        display.dispose();
+    }
+
+    // 클릭된 컬럼 인덱스를 계산하는 메서드
+    private static int getColumnIndex(Tree tree, Point point) {
+        int x = 0;
+        for (int i = 0; i < tree.getColumnCount(); i++) {
+            TreeColumn column = tree.getColumn(i);
+            x += column.getWidth();
+            if (point.x < x) {
+                return i;
+            }
+        }
+        return -1; // 찾지 못한 경우
+    }
+}
