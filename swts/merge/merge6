@@ -440,3 +440,185 @@ public class TreeViewerSelectionColumnExample {
         return -1; // 찾지 못한 경우
     }
 }
+
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.jface.viewers.*;
+
+public class TreeViewerExample {
+
+    public static void main(String[] args) {
+        // Display 및 Shell 생성
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("TreeViewer Example");
+        shell.setSize(600, 400);
+        shell.setLayout(new FillLayout(SWT.VERTICAL));
+
+        // Composite를 사용하여 위젯 배치
+        Composite composite = new Composite(shell, SWT.NONE);
+        composite.setLayout(new FillLayout(SWT.VERTICAL));
+
+        // TreeViewer 생성 (두 개의 컬럼)
+        TreeViewer treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.FULL_SELECTION);
+        Tree tree = treeViewer.getTree();
+        tree.setHeaderVisible(true);
+        tree.setLinesVisible(true);
+
+        // 컬럼 1 생성
+        TreeViewerColumn column1 = new TreeViewerColumn(treeViewer, SWT.NONE);
+        column1.getColumn().setText("컬럼 1");
+        column1.getColumn().setWidth(200);
+
+        // 컬럼 2 생성
+        TreeViewerColumn column2 = new TreeViewerColumn(treeViewer, SWT.NONE);
+        column2.getColumn().setText("컬럼 2");
+        column2.getColumn().setWidth(200);
+
+        // 컨텐츠 및 라벨 프로바이더 설정
+        treeViewer.setContentProvider(new MyContentProvider());
+        treeViewer.setLabelProvider(new MyLabelProvider());
+
+        // 초기 데이터 설정
+        MyModel root = createInitialModel();
+        treeViewer.setInput(root);
+
+        // 버튼을 위한 Composite 생성
+        Composite buttonComposite = new Composite(composite, SWT.NONE);
+        buttonComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+        // 버튼 생성
+        Button addButton = new Button(buttonComposite, SWT.PUSH);
+        addButton.setText("트리추가");
+
+        Button modifyButton = new Button(buttonComposite, SWT.PUSH);
+        modifyButton.setText("트리에 있는 값 변경");
+
+        Button deleteButton = new Button(buttonComposite, SWT.PUSH);
+        deleteButton.setText("특정 트리 삭제");
+
+        // 버튼 이벤트 처리
+        addButton.addListener(SWT.Selection, event -> {
+            // 새로운 노드 추가
+            MyModel newChild = new MyModel("새로운 노드", "새로운 값");
+            root.children = append(root.children, newChild);
+            treeViewer.refresh();
+            treeViewer.expandAll();
+        });
+
+        modifyButton.addListener(SWT.Selection, event -> {
+            // 트리의 값 변경
+            if (root.children.length > 0) {
+                root.children[0].value = "변경된 값";
+                treeViewer.refresh();
+            }
+        });
+
+        deleteButton.addListener(SWT.Selection, event -> {
+            // 특정 노드 삭제 (첫 번째 노드 삭제 예시)
+            if (root.children.length > 0) {
+                MyModel[] newChildren = new MyModel[root.children.length - 1];
+                System.arraycopy(root.children, 1, newChildren, 0, root.children.length - 1);
+                root.children = newChildren;
+                treeViewer.refresh();
+            }
+        });
+
+        // Shell 열기
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+        display.dispose();
+    }
+
+    // 초기 모델 생성
+    private static MyModel createInitialModel() {
+        MyModel root = new MyModel("루트", "루트 값");
+        root.children = new MyModel[] {
+            new MyModel("노드 1", "값 1"),
+            new MyModel("노드 2", "값 2"),
+            new MyModel("노드 3", "값 3")
+        };
+        return root;
+    }
+
+    // 배열에 요소 추가하는 유틸리티 메서드
+    private static MyModel[] append(MyModel[] models, MyModel newModel) {
+        MyModel[] newModels = new MyModel[models.length + 1];
+        System.arraycopy(models, 0, newModels, 0, models.length);
+        newModels[models.length] = newModel;
+        return newModels;
+    }
+
+    // 모델 클래스 정의
+    static class MyModel {
+        public String name;
+        public String value;
+        public MyModel[] children;
+
+        public MyModel(String name, String value) {
+            this.name = name;
+            this.value = value;
+            this.children = new MyModel[0];
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    // 컨텐츠 프로바이더 정의
+    static class MyContentProvider implements ITreeContentProvider {
+        @Override
+        public Object[] getElements(Object inputElement) {
+            return ((MyModel) inputElement).children;
+        }
+
+        @Override
+        public Object[] getChildren(Object parentElement) {
+            return ((MyModel) parentElement).children;
+        }
+
+        @Override
+        public Object getParent(Object element) {
+            // 부모 정보가 필요하지 않으므로 null 반환
+            return null;
+        }
+
+        @Override
+        public boolean hasChildren(Object element) {
+            return ((MyModel) element).children.length > 0;
+        }
+    }
+
+    // 라벨 프로바이더 정의 (두 개의 컬럼에 대한 텍스트 제공)
+    static class MyLabelProvider extends LabelProvider implements ITableLabelProvider {
+        @Override
+        public String getColumnText(Object element, int columnIndex) {
+            MyModel model = (MyModel) element;
+            switch (columnIndex) {
+                case 0:
+                    return model.name;
+                case 1:
+                    return model.value;
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public Image getColumnImage(Object element, int columnIndex) {
+            // 이미지가 필요하지 않으므로 null 반환
+            return null;
+        }
+    }
+}
