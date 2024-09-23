@@ -33,3 +33,98 @@ treeViewer.getTree().addListener(SWT.MenuDetect, new Listener() {
         }
     }
 });
+
+========================================================================================================
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.*;
+
+import org.eclipse.jface.viewers.TreeViewer;
+
+public class TreeViewerContextMenuExample {
+
+    public static void main(String[] args) {
+        // Display와 Shell 생성
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("TreeViewer Context Menu Example");
+        shell.setSize(400, 300);
+        shell.setLayout(new FillLayout());
+
+        // TreeViewer 생성
+        TreeViewer treeViewer = new TreeViewer(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+        Tree tree = treeViewer.getTree();
+
+        // 샘플 데이터 추가
+        TreeItem rootItem = new TreeItem(tree, 0);
+        rootItem.setText("루트 노드");
+        for (int i = 1; i <= 5; i++) {
+            TreeItem childItem = new TreeItem(rootItem, 0);
+            childItem.setText("자식 노드 " + i);
+        }
+        rootItem.setExpanded(true);
+
+        // 컨텍스트 메뉴 생성
+        Menu contextMenu = new Menu(tree);
+        tree.setMenu(contextMenu);
+
+        // 메뉴 아이템 추가
+        MenuItem menuItem1 = new MenuItem(contextMenu, SWT.NONE);
+        menuItem1.setText("메뉴 아이템 1");
+        menuItem1.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // 메뉴 아이템 선택 시 동작
+                TreeItem[] selection = tree.getSelection();
+                if (selection.length > 0) {
+                    System.out.println(selection[0].getText() + " - 메뉴 아이템 1 선택됨");
+                }
+            }
+        });
+
+        MenuItem menuItem2 = new MenuItem(contextMenu, SWT.NONE);
+        menuItem2.setText("메뉴 아이템 2");
+        menuItem2.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // 메뉴 아이템 선택 시 동작
+                TreeItem[] selection = tree.getSelection();
+                if (selection.length > 0) {
+                    System.out.println(selection[0].getText() + " - 메뉴 아이템 2 선택됨");
+                }
+            }
+        });
+
+        // 마우스 우클릭 이벤트 처리
+        tree.addListener(SWT.MenuDetect, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                Point point = tree.toControl(new Point(event.x, event.y));
+                TreeItem item = tree.getItem(point);
+                if (item != null) {
+                    // 아이템이 우클릭된 경우
+                    tree.setSelection(item);
+                    contextMenu.setEnabled(true);
+                } else {
+                    // 빈 공간이 우클릭된 경우
+                    tree.setSelection(new TreeItem[0]);
+                    contextMenu.setEnabled(false);
+                }
+            }
+        });
+
+        // Shell 열기
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+
+        // 자원 해제
+        display.dispose();
+    }
+}
