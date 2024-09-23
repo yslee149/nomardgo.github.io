@@ -1,0 +1,35 @@
+// TreeViewer 생성
+TreeViewer treeViewer = new TreeViewer(parent);
+
+// 컨텍스트 메뉴 생성
+Menu contextMenu = new Menu(treeViewer.getControl());
+treeViewer.getControl().setMenu(contextMenu);
+
+// 메뉴 아이템 추가
+MenuItem menuItem1 = new MenuItem(contextMenu, SWT.NONE);
+menuItem1.setText("메뉴 아이템 1");
+menuItem1.addListener(SWT.Selection, new Listener() {
+    @Override
+    public void handleEvent(Event event) {
+        // 메뉴 아이템 선택 시 동작
+    }
+});
+
+// 추가 메뉴 아이템 생성 가능
+
+// 마우스 우클릭 이벤트 처리 (선택 사항)
+treeViewer.getTree().addListener(SWT.MenuDetect, new Listener() {
+    @Override
+    public void handleEvent(Event event) {
+        Point point = treeViewer.getTree().toControl(new Point(event.x, event.y));
+        TreeItem item = treeViewer.getTree().getItem(point);
+        if (item != null) {
+            // 아이템이 우클릭된 경우
+            treeViewer.getTree().setSelection(item);
+            // 필요한 동작 수행
+        } else {
+            // 빈 공간이 우클릭된 경우
+            // 컨텍스트 메뉴 비활성화 등
+        }
+    }
+});
