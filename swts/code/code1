@@ -1,0 +1,34 @@
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+public class ComprehensiveRemovalExample {
+    public static void main(String[] args) {
+        // 맵 초기화
+        Map<Integer, ArrayList<Integer>> dataMap = new HashMap<>();
+        dataMap.put(1, new ArrayList<>(List.of(10, 20, 30, 40)));
+        dataMap.put(2, new ArrayList<>(List.of(30, 60, 70, 30)));
+        dataMap.put(3, new ArrayList<>(List.of(80, 90, 100)));
+
+        // 삭제하고자 하는 값
+        int valueToRemove = 30;
+
+        // 각 ArrayList에서 값 제거
+        for (Map.Entry<Integer, ArrayList<Integer>> entry : dataMap.entrySet()) {
+            ArrayList<Integer> list = entry.getValue();
+            if (list != null) { // null 체크
+                Iterator<Integer> iterator = list.iterator();
+                while (iterator.hasNext()) {
+                    Integer value = iterator.next();
+                    if (value.equals(valueToRemove)) {
+                        iterator.remove();
+                    }
+                }
+            }
+        }
+
+        // 결과 출력
+        dataMap.forEach((key, list) -> System.out.println("Key: " + key + ", List: " + list));
+    }
+}
