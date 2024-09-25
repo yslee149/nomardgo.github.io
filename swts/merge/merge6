@@ -1,0 +1,624 @@
+// TreeViewer 생성
+TreeViewer treeViewer = new TreeViewer(parent);
+
+// 컨텍스트 메뉴 생성
+Menu contextMenu = new Menu(treeViewer.getControl());
+treeViewer.getControl().setMenu(contextMenu);
+
+// 메뉴 아이템 추가
+MenuItem menuItem1 = new MenuItem(contextMenu, SWT.NONE);
+menuItem1.setText("메뉴 아이템 1");
+menuItem1.addListener(SWT.Selection, new Listener() {
+    @Override
+    public void handleEvent(Event event) {
+        // 메뉴 아이템 선택 시 동작
+    }
+});
+
+// 추가 메뉴 아이템 생성 가능
+
+// 마우스 우클릭 이벤트 처리 (선택 사항)
+treeViewer.getTree().addListener(SWT.MenuDetect, new Listener() {
+    @Override
+    public void handleEvent(Event event) {
+        Point point = treeViewer.getTree().toControl(new Point(event.x, event.y));
+        TreeItem item = treeViewer.getTree().getItem(point);
+        if (item != null) {
+            // 아이템이 우클릭된 경우
+            treeViewer.getTree().setSelection(item);
+            // 필요한 동작 수행
+        } else {
+            // 빈 공간이 우클릭된 경우
+            // 컨텍스트 메뉴 비활성화 등
+        }
+    }
+});
+
+========================================================================================================
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Point;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.*;
+
+import org.eclipse.jface.viewers.TreeViewer;
+
+public class TreeViewerContextMenuExample {
+
+    public static void main(String[] args) {
+        // Display와 Shell 생성
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("TreeViewer Context Menu Example");
+        shell.setSize(400, 300);
+        shell.setLayout(new FillLayout());
+
+        // TreeViewer 생성
+        TreeViewer treeViewer = new TreeViewer(shell, SWT.BORDER | SWT.MULTI | SWT.V_SCROLL);
+        Tree tree = treeViewer.getTree();
+
+        // 샘플 데이터 추가
+        TreeItem rootItem = new TreeItem(tree, 0);
+        rootItem.setText("루트 노드");
+        for (int i = 1; i <= 5; i++) {
+            TreeItem childItem = new TreeItem(rootItem, 0);
+            childItem.setText("자식 노드 " + i);
+        }
+        rootItem.setExpanded(true);
+
+        // 컨텍스트 메뉴 생성
+        Menu contextMenu = new Menu(tree);
+        tree.setMenu(contextMenu);
+
+        // 메뉴 아이템 추가
+        MenuItem menuItem1 = new MenuItem(contextMenu, SWT.NONE);
+        menuItem1.setText("메뉴 아이템 1");
+        menuItem1.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // 메뉴 아이템 선택 시 동작
+                TreeItem[] selection = tree.getSelection();
+                if (selection.length > 0) {
+                    System.out.println(selection[0].getText() + " - 메뉴 아이템 1 선택됨");
+                }
+            }
+        });
+
+        MenuItem menuItem2 = new MenuItem(contextMenu, SWT.NONE);
+        menuItem2.setText("메뉴 아이템 2");
+        menuItem2.addSelectionListener(new SelectionAdapter() {
+            @Override
+            public void widgetSelected(SelectionEvent e) {
+                // 메뉴 아이템 선택 시 동작
+                TreeItem[] selection = tree.getSelection();
+                if (selection.length > 0) {
+                    System.out.println(selection[0].getText() + " - 메뉴 아이템 2 선택됨");
+                }
+            }
+        });
+
+        // 마우스 우클릭 이벤트 처리
+        tree.addListener(SWT.MenuDetect, new Listener() {
+            @Override
+            public void handleEvent(Event event) {
+                Point point = tree.toControl(new Point(event.x, event.y));
+                TreeItem item = tree.getItem(point);
+                if (item != null) {
+                    // 아이템이 우클릭된 경우
+                    tree.setSelection(item);
+                    contextMenu.setEnabled(true);
+                } else {
+                    // 빈 공간이 우클릭된 경우
+                    tree.setSelection(new TreeItem[0]);
+                    contextMenu.setEnabled(false);
+                }
+            }
+        });
+
+        // Shell 열기
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+
+        // 자원 해제
+        display.dispose();
+    }
+}
+
+
+========================================================================================================
+
+ // TreeItem의 인덱스를 구하는 메서드
+    private static int getItemIndex(TreeItem item) {
+        TreeItem parent = item.getParentItem();
+        TreeItem[] siblings;
+
+        if (parent != null) {
+            // 부모 아이템의 자식 목록에서 인덱스 구하기
+            siblings = parent.getItems();
+        } else {
+            // 루트 아이템인 경우 트리의 최상위 아이템 목록에서 인덱스 구하기
+            siblings = item.getParent().getItems();
+        }
+
+        for (int i = 0; i < siblings.length; i++) {
+            if (siblings[i] == item) {
+                return i;
+            }
+        }
+
+        return -1; // 아이템을 찾지 못한 경우 (발생하지 않음)
+    }
+
+
+========================================================================================================
+
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.*;
+
+import org.eclipse.jface.viewers.*;
+
+public class TreeViewerSelectionExample {
+
+    public static void main(String[] args) {
+        // Display와 Shell 생성
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("TreeViewer Selection Example");
+        shell.setSize(600, 400);
+        shell.setLayout(new FillLayout());
+
+        // TreeViewer 생성
+        TreeViewer treeViewer = new TreeViewer(shell, SWT.BORDER | SWT.FULL_SELECTION);
+        Tree tree = treeViewer.getTree();
+        tree.setHeaderVisible(true);
+
+        // 컬럼 생성
+        String[] titles = { "이름", "설명", "상태" };
+        for (String title : titles) {
+            TreeColumn column = new TreeColumn(tree, SWT.NONE);
+            column.setText(title);
+            column.setWidth(150);
+        }
+
+        // 샘플 데이터 모델 클래스
+        class MyModel {
+            String name;
+            String description;
+            String status;
+
+            MyModel(String name, String description, String status) {
+                this.name = name;
+                this.description = description;
+                this.status = status;
+            }
+        }
+
+        // 샘플 데이터 추가
+        MyModel[] data = new MyModel[5];
+        for (int i = 0; i < 5; i++) {
+            data[i] = new MyModel("아이템 " + (i + 1), "설명 " + (i + 1), "상태 " + (i + 1));
+        }
+        treeViewer.setContentProvider(new ArrayContentProvider());
+        treeViewer.setLabelProvider(new LabelProvider() {
+            @Override
+            public String getText(Object element) {
+                return ((MyModel) element).name;
+            }
+        });
+        treeViewer.setInput(data);
+
+        // 선택된 요소와 클릭된 컬럼 인덱스를 저장할 변수
+        final Object[] selectedElement = new Object[1];
+        final int[] clickedColumnIndex = new int[1];
+
+        // SelectionChangedListener 추가
+        treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                IStructuredSelection selection = (IStructuredSelection) event.getSelection();
+                Object element = selection.getFirstElement();
+                selectedElement[0] = element;
+
+                if (element != null) {
+                    MyModel model = (MyModel) element;
+                    System.out.println("선택된 요소: " + model.name);
+                }
+            }
+        });
+
+        // 마우스 클릭 이벤트 처리
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                Point point = new Point(e.x, e.y);
+                TreeItem item = tree.getItem(point);
+
+                if (item != null) {
+                    // 클릭된 컬럼 인덱스 계산
+                    int columnIndex = getColumnIndex(tree, point);
+                    clickedColumnIndex[0] = columnIndex;
+
+                    // 클릭된 셀의 값 출력
+                    System.out.println("클릭된 컬럼 인덱스: " + columnIndex);
+                    System.out.println("클릭된 셀의 값: " + item.getText(columnIndex));
+
+                    // 선택된 요소와 클릭된 컬럼 인덱스를 함께 사용
+                    if (selectedElement[0] != null) {
+                        MyModel model = (MyModel) selectedElement[0];
+                        System.out.println("선택된 요소: " + model.name);
+                        System.out.println("클릭된 컬럼: " + titles[columnIndex]);
+                    }
+                }
+            }
+        });
+
+        // Shell 열기
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+
+        // 자원 해제
+        display.dispose();
+    }
+
+    // 클릭된 컬럼 인덱스를 계산하는 메서드
+    private static int getColumnIndex(Tree tree, Point point) {
+        int x = 0;
+        for (int i = 0; i < tree.getColumnCount(); i++) {
+            TreeColumn column = tree.getColumn(i);
+            x += column.getWidth();
+            if (point.x < x) {
+                return i;
+            }
+        }
+        return -1; // 찾지 못한 경우
+    }
+}
+
+========================================================================================================
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.*;
+
+import org.eclipse.jface.viewers.*;
+
+public class TreeViewerSelectionColumnExample {
+
+    public static void main(String[] args) {
+        // Display와 Shell 생성
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("TreeViewer Selection Column Example");
+        shell.setSize(600, 400);
+        shell.setLayout(new FillLayout());
+
+        // TreeViewer 생성
+        TreeViewer treeViewer = new TreeViewer(shell, SWT.BORDER | SWT.FULL_SELECTION);
+        Tree tree = treeViewer.getTree();
+        tree.setHeaderVisible(true);
+
+        // 컬럼 생성
+        String[] titles = { "이름", "설명", "상태" };
+        for (String title : titles) {
+            TreeColumn column = new TreeColumn(tree, SWT.NONE);
+            column.setText(title);
+            column.setWidth(150);
+        }
+
+        // 샘플 데이터 모델 클래스
+        class MyModel {
+            String name;
+            String description;
+            String status;
+
+            MyModel(String name, String description, String status) {
+                this.name = name;
+                this.description = description;
+                this.status = status;
+            }
+        }
+
+        // 샘플 데이터 추가
+        MyModel[] data = new MyModel[5];
+        for (int i = 0; i < 5; i++) {
+            data[i] = new MyModel("아이템 " + (i + 1), "설명 " + (i + 1), "상태 " + (i + 1));
+        }
+        treeViewer.setContentProvider(new ArrayContentProvider());
+        treeViewer.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public void update(ViewerCell cell) {
+                MyModel model = (MyModel) cell.getElement();
+                switch (cell.getColumnIndex()) {
+                    case 0:
+                        cell.setText(model.name);
+                        break;
+                    case 1:
+                        cell.setText(model.description);
+                        break;
+                    case 2:
+                        cell.setText(model.status);
+                        break;
+                }
+            }
+        });
+        treeViewer.setInput(data);
+
+        // 클릭된 컬럼 인덱스를 저장할 변수
+        final int[] clickedColumnIndex = new int[1];
+        clickedColumnIndex[0] = -1; // 초기값
+
+        // 마우스 클릭 이벤트 처리
+        tree.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseDown(MouseEvent e) {
+                Point point = new Point(e.x, e.y);
+                TreeItem item = tree.getItem(point);
+
+                if (item != null) {
+                    // 클릭된 컬럼 인덱스 계산
+                    int columnIndex = getColumnIndex(tree, point);
+                    clickedColumnIndex[0] = columnIndex;
+
+                    // 클릭된 셀의 값 출력 (디버깅용)
+                    System.out.println("클릭된 컬럼 인덱스: " + columnIndex);
+                    System.out.println("클릭된 셀의 값: " + item.getText(columnIndex));
+                } else {
+                    clickedColumnIndex[0] = -1; // 아이템이 없는 곳 클릭 시 초기화
+                }
+            }
+        });
+
+        // SelectionChangedListener 추가
+        treeViewer.addSelectionChangedListener(new ISelectionChangedListener() {
+            @Override
+            public void selectionChanged(SelectionChangedEvent event) {
+                // 현재 선택된 값을 직접 가져오기
+                IStructuredSelection selection = (IStructuredSelection) treeViewer.getSelection();
+                Object element = selection.getFirstElement();
+
+                if (element != null && clickedColumnIndex[0] != -1) {
+                    MyModel model = (MyModel) element;
+                    int columnIndex = clickedColumnIndex[0];
+
+                    // 선택된 요소와 컬럼 정보를 사용
+                    System.out.println("선택된 요소: " + model.name);
+                    System.out.println("클릭된 컬럼 인덱스: " + columnIndex);
+                    System.out.println("클릭된 컬럼 이름: " + titles[columnIndex]);
+
+                    // 클릭된 컬럼에 따른 동작 수행
+                    switch (columnIndex) {
+                        case 0:
+                            // 첫 번째 컬럼 클릭 시 동작
+                            System.out.println("이름 컬럼 클릭됨");
+                            break;
+                        case 1:
+                            // 두 번째 컬럼 클릭 시 동작
+                            System.out.println("설명 컬럼 클릭됨");
+                            break;
+                        case 2:
+                            // 세 번째 컬럼 클릭 시 동작
+                            System.out.println("상태 컬럼 클릭됨");
+                            break;
+                    }
+                }
+            }
+        });
+
+        // Shell 열기
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+
+        // 자원 해제
+        display.dispose();
+    }
+
+    // 클릭된 컬럼 인덱스를 계산하는 메서드
+    private static int getColumnIndex(Tree tree, Point point) {
+        int x = 0;
+        for (int i = 0; i < tree.getColumnCount(); i++) {
+            TreeColumn column = tree.getColumn(i);
+            x += column.getWidth();
+            if (point.x < x) {
+                return i;
+            }
+        }
+        return -1; // 찾지 못한 경우
+    }
+}
+
+
+
+--------------------------------------------------------------------------------------------------------
+
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.widgets.*;
+import org.eclipse.jface.viewers.*;
+
+public class TreeViewerExample {
+
+    public static void main(String[] args) {
+        // Display 및 Shell 생성
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("TreeViewer Example");
+        shell.setSize(600, 400);
+        shell.setLayout(new FillLayout(SWT.VERTICAL));
+
+        // Composite를 사용하여 위젯 배치
+        Composite composite = new Composite(shell, SWT.NONE);
+        composite.setLayout(new FillLayout(SWT.VERTICAL));
+
+        // TreeViewer 생성 (두 개의 컬럼)
+        TreeViewer treeViewer = new TreeViewer(composite, SWT.BORDER | SWT.FULL_SELECTION);
+        Tree tree = treeViewer.getTree();
+        tree.setHeaderVisible(true);
+        tree.setLinesVisible(true);
+
+        // 컬럼 1 생성
+        TreeViewerColumn column1 = new TreeViewerColumn(treeViewer, SWT.NONE);
+        column1.getColumn().setText("컬럼 1");
+        column1.getColumn().setWidth(200);
+
+        // 컬럼 2 생성
+        TreeViewerColumn column2 = new TreeViewerColumn(treeViewer, SWT.NONE);
+        column2.getColumn().setText("컬럼 2");
+        column2.getColumn().setWidth(200);
+
+        // 컨텐츠 및 라벨 프로바이더 설정
+        treeViewer.setContentProvider(new MyContentProvider());
+        treeViewer.setLabelProvider(new MyLabelProvider());
+
+        // 초기 데이터 설정
+        MyModel root = createInitialModel();
+        treeViewer.setInput(root);
+
+        // 버튼을 위한 Composite 생성
+        Composite buttonComposite = new Composite(composite, SWT.NONE);
+        buttonComposite.setLayout(new FillLayout(SWT.HORIZONTAL));
+
+        // 버튼 생성
+        Button addButton = new Button(buttonComposite, SWT.PUSH);
+        addButton.setText("트리추가");
+
+        Button modifyButton = new Button(buttonComposite, SWT.PUSH);
+        modifyButton.setText("트리에 있는 값 변경");
+
+        Button deleteButton = new Button(buttonComposite, SWT.PUSH);
+        deleteButton.setText("특정 트리 삭제");
+
+        // 버튼 이벤트 처리
+        addButton.addListener(SWT.Selection, event -> {
+            // 새로운 노드 추가
+            MyModel newChild = new MyModel("새로운 노드", "새로운 값");
+            root.children = append(root.children, newChild);
+            treeViewer.refresh();
+            treeViewer.expandAll();
+        });
+
+        modifyButton.addListener(SWT.Selection, event -> {
+            // 트리의 값 변경
+            if (root.children.length > 0) {
+                root.children[0].value = "변경된 값";
+                treeViewer.refresh();
+            }
+        });
+
+        deleteButton.addListener(SWT.Selection, event -> {
+            // 특정 노드 삭제 (첫 번째 노드 삭제 예시)
+            if (root.children.length > 0) {
+                MyModel[] newChildren = new MyModel[root.children.length - 1];
+                System.arraycopy(root.children, 1, newChildren, 0, root.children.length - 1);
+                root.children = newChildren;
+                treeViewer.refresh();
+            }
+        });
+
+        // Shell 열기
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+        display.dispose();
+    }
+
+    // 초기 모델 생성
+    private static MyModel createInitialModel() {
+        MyModel root = new MyModel("루트", "루트 값");
+        root.children = new MyModel[] {
+            new MyModel("노드 1", "값 1"),
+            new MyModel("노드 2", "값 2"),
+            new MyModel("노드 3", "값 3")
+        };
+        return root;
+    }
+
+    // 배열에 요소 추가하는 유틸리티 메서드
+    private static MyModel[] append(MyModel[] models, MyModel newModel) {
+        MyModel[] newModels = new MyModel[models.length + 1];
+        System.arraycopy(models, 0, newModels, 0, models.length);
+        newModels[models.length] = newModel;
+        return newModels;
+    }
+
+    // 모델 클래스 정의
+    static class MyModel {
+        public String name;
+        public String value;
+        public MyModel[] children;
+
+        public MyModel(String name, String value) {
+            this.name = name;
+            this.value = value;
+            this.children = new MyModel[0];
+        }
+
+        @Override
+        public String toString() {
+            return name;
+        }
+    }
+
+    // 컨텐츠 프로바이더 정의
+    static class MyContentProvider implements ITreeContentProvider {
+        @Override
+        public Object[] getElements(Object inputElement) {
+            return ((MyModel) inputElement).children;
+        }
+
+        @Override
+        public Object[] getChildren(Object parentElement) {
+            return ((MyModel) parentElement).children;
+        }
+
+        @Override
+        public Object getParent(Object element) {
+            // 부모 정보가 필요하지 않으므로 null 반환
+            return null;
+        }
+
+        @Override
+        public boolean hasChildren(Object element) {
+            return ((MyModel) element).children.length > 0;
+        }
+    }
+
+    // 라벨 프로바이더 정의 (두 개의 컬럼에 대한 텍스트 제공)
+    static class MyLabelProvider extends LabelProvider implements ITableLabelProvider {
+        @Override
+        public String getColumnText(Object element, int columnIndex) {
+            MyModel model = (MyModel) element;
+            switch (columnIndex) {
+                case 0:
+                    return model.name;
+                case 1:
+                    return model.value;
+                default:
+                    return null;
+            }
+        }
+
+        @Override
+        public Image getColumnImage(Object element, int columnIndex) {
+            // 이미지가 필요하지 않으므로 null 반환
+            return null;
+        }
+    }
+}
