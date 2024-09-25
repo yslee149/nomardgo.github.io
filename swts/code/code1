@@ -32,3 +32,46 @@ public class ComprehensiveRemovalExample {
         dataMap.forEach((key, list) -> System.out.println("Key: " + key + ", List: " + list));
     }
 }
+--------------------------------------------------------------------------------
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+
+public class SafeRemoveExample {
+    public static void main(String[] args) {
+        // 맵 초기화
+        Map<Integer, ArrayList<Integer>> dataMap = new HashMap<>();
+        dataMap.put(1, new ArrayList<>(List.of(10, 20, 30, 40)));
+        dataMap.put(2, new ArrayList<>(List.of(50, 60, 70, 80)));
+        dataMap.put(3, new ArrayList<>(List.of(90, 100, 60)));
+
+        // 삭제할 키와 값
+        int keyToModify = 2;
+        Integer valueToRemove = 60;
+
+        // 키가 존재하는지 확인
+        if (dataMap.containsKey(keyToModify)) {
+            ArrayList<Integer> list = dataMap.get(keyToModify);
+            if (list != null) {
+                Iterator<Integer> iterator = list.iterator();
+                while (iterator.hasNext()) {
+                    Integer value = iterator.next();
+                    if (value.equals(valueToRemove)) {
+                        iterator.remove();
+                    }
+                }
+                System.out.println("값 " + valueToRemove + "이(가) 키 " + keyToModify + "의 리스트에서 제거되었습니다.");
+            } else {
+                System.out.println("키 " + keyToModify + "에 해당하는 리스트가 null입니다.");
+            }
+        } else {
+            System.out.println("키 " + keyToModify + "가 맵에 존재하지 않습니다.");
+        }
+
+        // 결과 출력
+        dataMap.forEach((key, list) -> System.out.println("Key: " + key + ", List: " + list));
+    }
+}
