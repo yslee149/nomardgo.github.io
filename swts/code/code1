@@ -75,3 +75,35 @@ public class SafeRemoveExample {
         dataMap.forEach((key, list) -> System.out.println("Key: " + key + ", List: " + list));
     }
 }
+
+--------------------------------------------------------------------------------
+
+public static void removeDataSynchronized(Map<Integer, List<Integer>> dataAllMap,
+                                         Map<Integer, List<Integer>> dataRemoveMap) {
+    synchronized (dataAllMap) {
+        for (Map.Entry<Integer, List<Integer>> removeEntry : dataRemoveMap.entrySet()) {
+            Integer key = removeEntry.getKey();
+            List<Integer> removeList = removeEntry.getValue();
+
+            if (dataAllMap.containsKey(key)) {
+                List<Integer> allList = dataAllMap.get(key);
+
+                if (allList != null && removeList != null) {
+                    synchronized (allList) {
+                        boolean changed = allList.removeAll(removeList);
+                        if (changed) {
+                            System.out.println("키 " + key + "의 리스트에서 " + removeList + "가(이) 제거되었습니다.");
+                        } else {
+                            System.out.println("키 " + key + "의 리스트에서 제거할 값들을 찾을 수 없습니다.");
+                        }
+                    }
+                } else {
+                    System.out.println("키 " + key + "에 해당하는 리스트나 삭제할 리스트가 null입니다.");
+                }
+            } else {
+                System.out.println("키 " + key + "가 dataAllMap에 존재하지 않습니다.");
+            }
+        }
+    }
+}
+
