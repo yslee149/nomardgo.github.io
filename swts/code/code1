@@ -107,3 +107,42 @@ public static void removeDataSynchronized(Map<Integer, List<Integer>> dataAllMap
     }
 }
 
+
+-----------------------------------------------------------------------------------------------
+
+package org.yslee;
+
+import java.util.*;
+
+public class TreeDataRetriever {
+    public static void main(String[] args) {
+        Map<Integer, ArrayList<Integer>> treeData = new HashMap<>();
+
+        treeData.put(0, new ArrayList<>(Arrays.asList(1, 2, 3, 4)));
+        treeData.put(1, new ArrayList<>(Arrays.asList(5, 6)));
+        treeData.put(3, new ArrayList<>(Arrays.asList(7)));
+        treeData.put(7, new ArrayList<>(Arrays.asList(10)));
+        treeData.put(5, new ArrayList<>(Arrays.asList(12, 13)));
+
+        Map<Integer, ArrayList<Integer>> result = new HashMap<>();
+        retrieveTreeData(1, treeData, result);
+
+        System.out.println(result);
+    }
+
+    public static void retrieveTreeData(int key, Map<Integer, ArrayList<Integer>> treeData, Map<Integer, ArrayList<Integer>> result) {
+        // key에 해당하는 데이터를 결과 맵에 추가
+        if (!result.containsKey(key)) {
+            result.put(key, new ArrayList<>());
+        }
+
+        // key에 해당하는 자식 노드가 있는 경우 재귀 호출
+        if (treeData.containsKey(key)) {
+            for (int child : treeData.get(key)) {
+                result.get(key).add(child);
+                retrieveTreeData(child, treeData, result);
+            }
+        }
+    }
+}
+
