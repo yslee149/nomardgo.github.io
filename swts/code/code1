@@ -146,3 +146,122 @@ public class TreeDataRetriever {
     }
 }
 
+--------------------------------------------------------------------------------
+
+import java.util.*;
+import org.eclipse.jface.viewers.*;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.FillLayout;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Composite;
+
+public class TreeDataRetriever {
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setLayout(new GridLayout(1, false));
+        shell.setSize(500, 400);
+
+        Composite buttonComposite = new Composite(shell, SWT.NONE);
+        buttonComposite.setLayoutData(new GridData(SWT.FILL, SWT.TOP, true, false));
+        buttonComposite.setLayout(new GridLayout(2, true));
+
+        Button ascButton = new Button(buttonComposite, SWT.PUSH);
+        ascButton.setText("Sort Ascending");
+        Button descButton = new Button(buttonComposite, SWT.PUSH);
+        descButton.setText("Sort Descending");
+
+        TreeViewer treeViewer = new TreeViewer(shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+        treeViewer.getTree().setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+        treeViewer.setContentProvider(new ITreeContentProvider() {
+            @Override
+            public Object[] getElements(Object inputElement) {
+                return ((Map<?, ?>) inputElement).values().toArray();
+            }
+
+            @Override
+            public Object[] getChildren(Object parentElement) {
+                return new Object[0]; // No children in this example
+            }
+
+            @Override
+            public Object getParent(Object element) {
+                return null;
+            }
+
+            @Override
+            public boolean hasChildren(Object element) {
+                return false;
+            }
+        });
+
+        treeViewer.setLabelProvider(new LabelProvider() {
+            @Override
+            public String getText(Object element) {
+                if (element instanceof Item) {
+                    return ((Item) element).shortName;
+                }
+                return super.getText(element);
+            }
+        });
+
+        // Map 데이터 초기화
+        Map<Integer, Item> mapItems = new HashMap<>();
+        mapItems.put(1, new Item(1, "Banana"));
+        mapItems.put(2, new Item(2, "Apple"));
+        mapItems.put(3, new Item(3, "Cherry"));
+        mapItems.put(4, new Item(4, "Date"));
+
+        treeViewer.setInput(mapItems);
+
+        // 오름차순 버튼 이벤트
+        ascButton.addListener(SWT.Selection, e -> treeViewer.setComparator(new ViewerComparator() {
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+                if (e1 instanceof Item && e2 instanceof Item) {
+                    String name1 = ((Item) e1).shortName;
+                    String name2 = ((Item) e2).shortName;
+                    return name1.compareToIgnoreCase(name2);
+                }
+                return super.compare(viewer, e1, e2);
+            }
+        }));
+
+        // 내림차순 버튼 이벤트
+        descButton.addListener(SWT.Selection, e -> treeViewer.setComparator(new ViewerComparator() {
+            @Override
+            public int compare(Viewer viewer, Object e1, Object e2) {
+                if (e1 instanceof Item && e2 instanceof Item) {
+                    String name1 = ((Item) e1).shortName;
+                    String name2 = ((Item) e2).shortName;
+                    return name2.compareToIgnoreCase(name1);
+                }
+                return super.compare(viewer, e1, e2);
+            }
+        }));
+
+        shell.open();
+
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        display.dispose();
+    }
+
+    static class Item {
+        int id;
+        String shortName;
+
+        Item(int id, String shortName) {
+            this.id = id;
+            this.shortName = shortName;
+        }
+    }
+}
+
