@@ -397,3 +397,20 @@ class MapEntryComparator implements Comparator<Map.Entry<Integer, Item>> {
         return itemComparator.compare(entry1.getValue(), entry2.getValue());
     }
 }
+
+---
+여기 버튼에 대한 영문 이름과 유니코드 기호를 제안해볼게요:
+
+병합된 결과물을 저장하는 버튼:
+
+이름: "Save Merged Result"
+유니코드 기호: "\u1F4BE" (💾) - 플로피 디스크 아이콘으로 "저장"의 의미를 전달
+바로 앞전으로 돌아가는 버튼 (히스토리 관련):
+
+이름: "Undo Merge"
+유니코드 기호: "\u2190" (←) - 왼쪽 화살표 아이콘으로 "뒤로 돌아가기"의 의미를 전달
+앞전으로 돌아갔던 부분을 복구하는 버튼 (히스토리 관련):
+
+이름: "Redo Merge"
+유니코드 기호: "\u2192" (→) - 오른쪽 화살표 아이콘으로 "다시 복구"의 의미를 전달
+이렇게 각 버튼의 기능을 반영한 이름과 기호를 사용하면 사용자 입장에서 직관적으로 이해하기 쉬울 거예요. 이 제안이 도움이 되었길 바라요!
