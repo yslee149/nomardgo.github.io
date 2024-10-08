@@ -157,3 +157,113 @@ class ItemComparator implements Comparator<Item> {
         }
     }
 }
+
+--------------------------------------------------------------------------------
+
+import java.util.*;
+
+public class CustomSort {
+    public static void main(String[] args) {
+        Map<Integer, Item> map = new HashMap<>();
+        map.put(1, new Item("abc1"));
+        map.put(2, new Item("abc2"));
+        map.put(3, new Item("abc3"));
+        map.put(4, new Item("abc 10"));
+        map.put(5, new Item("abc11"));
+        map.put(6, new Item("abc102"));
+        map.put(7, new Item("abc  82"));
+        map.put(8, new Item("abc0"));
+        map.put(9, new Item("abc4"));
+        map.put(10, new Item("abc5"));
+        map.put(11, new Item("Abc6"));
+        map.put(12, new Item("aBC9"));
+        map.put(13, new Item("bcd2"));
+        map.put(14, new Item("bcd-10"));
+        map.put(15, new Item("bcd3"));
+        map.put(16, new Item("bcd4"));
+        map.put(17, new Item("bcd102"));
+        map.put(18, new Item("bcd67"));
+        map.put(19, new Item("bcd_32"));
+        map.put(20, new Item("abc_8"));
+        map.put(21, new Item("abc_7"));
+
+        System.out.println("Ascending Order:");
+        List<Map.Entry<Integer, Item>> ascendingSorted = new ArrayList<>(map.entrySet());
+        Collections.sort(ascendingSorted, new MapEntryComparator(true));
+        map.clear();
+        for (Map.Entry<Integer, Item> entry : ascendingSorted) {
+            map.put(entry.getKey(), entry.getValue());
+            System.out.println(entry.getValue().number);
+        }
+
+        System.out.println("\nDescending Order:");
+        List<Map.Entry<Integer, Item>> descendingSorted = new ArrayList<>(map.entrySet());
+        Collections.sort(descendingSorted, new MapEntryComparator(false));
+        map.clear();
+        for (Map.Entry<Integer, Item> entry : descendingSorted) {
+            map.put(entry.getKey(), entry.getValue());
+            System.out.println(entry.getValue().number);
+        }
+    }
+}
+
+class Item {
+    String number;
+
+    public Item(String number) {
+        this.number = number;
+    }
+}
+
+class ItemComparator implements Comparator<Item> {
+    private boolean ascending;
+
+    public ItemComparator(boolean ascending) {
+        this.ascending = ascending;
+    }
+
+    @Override
+    public int compare(Item item1, Item item2) {
+        String normalizedS1 = normalizeString(item1.number);
+        String normalizedS2 = normalizeString(item2.number);
+
+        // 숫자를 기준으로 정렬
+        int numberCompare = extractNumber(normalizedS1) - extractNumber(normalizedS2);
+        if (numberCompare != 0) {
+            return ascending ? numberCompare : -numberCompare;
+        }
+
+        // 문자를 기준으로 정렬 (대소문자 구분 없이)
+        int stringCompare = normalizedS1.compareToIgnoreCase(normalizedS2);
+        return ascending ? stringCompare : -stringCompare;
+    }
+
+    private String normalizeString(String str) {
+        // 공백, 특수문자 제거
+        return str.replaceAll("[\\s_\-]", "");
+    }
+
+    private int extractNumber(String str) {
+        // 문자열에서 숫자 추출. 숫자가 없으면 0으로 간주.
+        String num = str.replaceAll("[^-?\\d]", "");
+        try {
+            return Integer.parseInt(num);
+        } catch (NumberFormatException e) {
+            return 0;
+        }
+    }
+}
+
+class MapEntryComparator implements Comparator<Map.Entry<Integer, Item>> {
+    private boolean ascending;
+
+    public MapEntryComparator(boolean ascending) {
+        this.ascending = ascending;
+    }
+
+    @Override
+    public int compare(Map.Entry<Integer, Item> entry1, Map.Entry<Integer, Item> entry2) {
+        ItemComparator itemComparator = new ItemComparator(ascending);
+        return itemComparator.compare(entry1.getValue(), entry2.getValue());
+    }
+}
