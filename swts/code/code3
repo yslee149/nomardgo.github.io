@@ -92,3 +92,57 @@ public class MapUndoRedoExample {
         System.out.println("After redo: " + map);
     }
 }
+
+------------
+
+package org.yslee;
+
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+public class MapMergeWithFlag {
+    public static void main(String[] args) {
+        // 첫 번째와 두 번째 맵 정의
+        Map<String, Integer> map1 = new LinkedHashMap<>();
+        map1.put("A", 1);
+        map1.put("B", 2);
+        map1.put("C", 3);
+        map1.put("e", 6);
+        map1.put("f", 9);
+
+        Map<String, Integer> map2 = new LinkedHashMap<>();
+        map2.put("A", 1);
+        map2.put("B", 4); // 값이 다름
+        map2.put("D", 5);
+        map1.put("e", 6);
+
+        // 결과를 저장할 맵
+        Map<String, String> resultMap = new LinkedHashMap<>();
+
+        // 첫 번째 맵을 순회하면서 상태 확인
+        for (String key : map1.keySet()) {
+            if (map2.containsKey(key)) {
+                // 두 번째 맵에도 키가 존재하는 경우
+                if (map1.get(key).equals(map2.get(key))) {
+                    resultMap.put(key, "same"); // 값이 동일
+                } else {
+                    resultMap.put(key, "different"); // 값이 다름
+                }
+            } else {
+                resultMap.put(key, "delete"); // 첫 번째 맵에만 존재
+            }
+        }
+
+        // 두 번째 맵을 순회하면서 첫 번째 맵에 없는 키 확인
+        for (String key : map2.keySet()) {
+            if (!map1.containsKey(key)) {
+                resultMap.put(key, "added"); // 두 번째 맵에만 존재
+            }
+        }
+
+        // 결과 출력
+        for (Map.Entry<String, String> entry : resultMap.entrySet()) {
+            System.out.println("키 = " + entry.getKey() + ", 상태 = " + entry.getValue());
+        }
+    }
+}
