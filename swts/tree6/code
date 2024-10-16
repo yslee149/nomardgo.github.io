@@ -202,3 +202,31 @@ public class SortTest {
         }
     }
 }
+
+
+
+----------------
+
+
+static class AlphanumericComparator implements Comparator<String> {
+    @Override
+    public int compare(String s1, String s2) {
+        // 대소문자, 공백, 언더바 등 제거
+        s1 = s1.replaceAll("[_\\s]", "").toLowerCase();
+        s2 = s2.replaceAll("[_\\s]", "").toLowerCase();
+
+        String[] parts1 = s1.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+        String[] parts2 = s2.split("(?<=\\D)(?=\\d)|(?<=\\d)(?=\\D)");
+        int length = Math.min(parts1.length, parts2.length);
+        for (int i = 0; i < length; i++) {
+            int result = parts1[i].compareTo(parts2[i]);
+            if (result != 0) {
+                if (parts1[i].matches("\\d+") && parts2[i].matches("\\d+")) {
+                    result = Integer.compare(Integer.parseInt(parts1[i]), Integer.parseInt(parts2[i]));
+                }
+                return result;
+            }
+        }
+        return Integer.compare(parts1.length, parts2.length);
+    }
+}
