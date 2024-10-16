@@ -111,3 +111,94 @@ private List<Integer> extractNumbers(String str) {
     return numbers;
 }
 }
+
+
+----------
+
+
+package org.yslee;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+public class SortTest {
+
+    public static void main(String[] args) {
+        List<Node> list = new ArrayList<>();
+        Node node = new Node("3");
+        list.add(node);
+
+        Node node2 = new Node("1");
+        node.next = node2;
+
+        Node node3 = new Node("4");
+        node2.next = node3;
+
+        Node node4 = new Node("2");
+        node3.next = node4;
+
+        addChildren(node2, "2-3", "2-1", "2-2");
+        addChildren(node3, "3-2", "3-3", "3-1");
+
+        // 더 깊은 뎁스의 자식 노드 추가
+        Node node2_1 = node2.childList.get(1); // "2-1"
+        addChildren(node2_1, "2-1-2", "2-1-1", "2-1-3");
+
+        Node node3_2 = node3.childList.get(0); // "3-2"
+        addChildren(node3_2, "3-2-3", "3-2-1", "3-2-2");
+
+        // 데이터 정렬
+        List<String> allData = new ArrayList<>();
+        collectData(list, allData);
+        Collections.sort(allData);
+
+        // 정렬된 데이터 출력
+        for (String data : allData) {
+            System.out.println(data);
+        }
+    }
+
+    static void addChildren(Node node, String... data) {
+        for (String d : data) {
+            node.addChild(new Node(d));
+        }
+    }
+
+    // 모든 데이터를 수집하는 메서드 (재귀 호출)
+    static void collectData(List<Node> nodeList, List<String> allData) {
+        for (Node node : nodeList) {
+            collectData(node, allData);
+        }
+    }
+
+    static void collectData(Node node, List<String> allData) {
+        if (node == null) {
+            return;
+        }
+        allData.add(node.data);
+        if (node.childList != null) {
+            for (Node child : node.childList) {
+                collectData(child, allData);
+            }
+        }
+        collectData(node.next, allData);
+    }
+
+    static class Node {
+        String data;
+        Node next;
+        List<Node> childList;
+
+        Node(String data) {
+            this.data = data;
+        }
+
+        void addChild(Node node) {
+            if (childList == null) {
+                childList = new ArrayList<>();
+            }
+            childList.add(node);
+        }
+    }
+}
