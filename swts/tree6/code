@@ -19,3 +19,70 @@ public void collapseToDepth(Tree tree, int depth) {
 
 
 collapseToDepth(tree, 2);
+
+--------------------
+
+import java.text.Collator;
+import java.util.*;
+
+class Item {
+    String name;
+
+    Item(String name) {
+        this.name = name;
+    }
+}
+
+public class ItemSorter {
+    public static void main(String[] args) {
+        Map<String, Item> map = new HashMap<>();
+        map.put("1", new Item("abce65"));
+        map.put("2", new Item("abcd65"));
+        map.put("3", new Item("abcd7"));
+        map.put("4", new Item("abcd_12"));
+        map.put("5", new Item("abc d-12"));
+
+        List<Item> items = new ArrayList<>(map.values());
+        items.sort(new ItemComparator());
+
+        for (Item item : items) {
+            System.out.println(item.name);
+        }
+    }
+
+    static class ItemComparator implements Comparator<Item> {
+        @Override
+        public int compare(Item o1, Item o2) {
+            String name1 = normalize(o1.name);
+            String name2 = normalize(o2.name);
+
+            int result = name1.compareTo(name2);
+            if (result == 0) {
+                return extractNumbers(o1.name).compareTo(extractNumbers(o2.name));
+            }
+            return result;
+        }
+
+        private String normalize(String str) {
+            // 특수문자, 공백, 대소문자 구분 없이 문자열 정규화
+            return str.replaceAll("[^a-zA-Z0-9]", "").toLowerCase();
+        }
+
+        private List<Integer> extractNumbers(String str) {
+            List<Integer> numbers = new ArrayList<>();
+            Scanner scanner = new Scanner(str);
+            while (scanner.findInLine("\\d+") != null) {
+                numbers.add(scanner.match().group().length());
+            }
+            return numbers;
+
+
+            Map<String, Item> sortedMap = new LinkedHashMap<>();
+for (Item item : items) {
+    for (Map.Entry<String, Item> entry : map.entrySet()) {
+        if (entry.getValue().equals(item)) {
+            sortedMap.put(entry.getKey(), item);
+            break;
+        }
+    }
+}
