@@ -1,0 +1,21 @@
+public void expandToDepth(TreeItem item, int targetDepth, int currentDepth) {
+    // 현재 깊이가 목표 깊이보다 작으면 확장
+    if (currentDepth < targetDepth) {
+        item.setExpanded(true);
+        for (TreeItem child : item.getItems()) {
+            expandToDepth(child, targetDepth, currentDepth + 1);
+        }
+    } else {
+        // 목표 깊이에 도달한 경우 하위 항목을 닫음
+        item.setExpanded(false);
+    }
+}
+
+public void collapseToDepth(Tree tree, int depth) {
+    for (TreeItem item : tree.getItems()) {
+        expandToDepth(item, depth, 0); // 깊이 설정을 위해 초기 깊이를 0으로 설정
+    }
+}
+
+
+collapseToDepth(tree, 2);
