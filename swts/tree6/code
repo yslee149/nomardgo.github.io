@@ -362,3 +362,89 @@ for (Map.Entry<String, Item> entry : entryList) {
 for (Map.Entry<String, Item> entry : valueSortedMap.entrySet()) {
     System.out.println(entry.getKey() + " : " + entry.getValue());
 }
+
+=================================
+
+
+
+import java.util.Comparator;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+public class ItemComparator implements Comparator<Item> {
+    private final Pattern pattern = Pattern.compile("^artifacDe\\.(\\d+)$", Pattern.CASE_INSENSITIVE);
+
+    @Override
+    public int compare(Item o1, Item o2) {
+        String name1 = o1.getName();
+        String name2 = o2.getName();
+
+        Matcher m1 = pattern.matcher(name1);
+        Matcher m2 = pattern.matcher(name2);
+
+        boolean isArtifacDe1 = m1.matches();
+        boolean isArtifacDe2 = m2.matches();
+
+        // 둘 다 artifacDe.X 형식인 경우
+        if (isArtifacDe1 && isArtifacDe2) {
+            int num1 = Integer.parseInt(m1.group(1));
+            int num2 = Integer.parseInt(m2.group(1));
+            return Integer.compare(num1, num2);
+        }
+
+        // 첫 번째 항목만 artifacDe.X 형식인 경우
+        if (isArtifacDe1) {
+            return -1; // o1이 먼저 오도록
+        }
+
+        // 두 번째 항목만 artifacDe.X 형식인 경우
+        if (isArtifacDe2) {
+            return 1; // o2가 먼저 오도록
+        }
+
+        // 둘 다 artifacDe.X 형식이 아닌 경우 알파벳 순으로 정렬
+        return name1.compareToIgnoreCase(name2);
+    }
+}
+
+------
+
+정렬 전 List:
+Item{name='BswDescr', value='value1', count=10}
+Item{name='artifacDe.0', value='value2', count=5}
+Item{name='AUTOSAR_MemMap', value='value3', count=8}
+Item{name='artifacDe.1', value='value4', count=2}
+Item{name='FlsBehavior', value='value5', count=7}
+Item{name='artifacDe.2', value='value6', count=3}
+Item{name='Fis', value='value7', count=6}
+Item{name='artifacDe.10', value='value8', count=1}
+
+정렬 후 List:
+Item{name='artifacDe.0', value='value2', count=5}
+Item{name='artifacDe.1', value='value4', count=2}
+Item{name='artifacDe.2', value='value6', count=3}
+Item{name='artifacDe.10', value='value8', count=1}
+Item{name='BswDescr', value='value1', count=10}
+Item{name='AUTOSAR_MemMap', value='value3', count=8}
+Item{name='FlsBehavior', value='value5', count=7}
+Item{name='Fis', value='value7', count=6}
+
+정렬 전 Map:
+b1 -> Item{name='BswDescr', value='value1', count=10}
+a1 -> Item{name='artifacDe.0', value='value2', count=5}
+c1 -> Item{name='AUTOSAR_MemMap', value='value3', count=8}
+d1 -> Item{name='artifacDe.1', value='value4', count=2}
+e1 -> Item{name='FlsBehavior', value='value5', count=7}
+f1 -> Item{name='artifacDe.2', value='value6', count=3}
+g1 -> Item{name='Fis', value='value7', count=6}
+h1 -> Item{name='artifacDe.10', value='value8', count=1}
+
+정렬 후 Map:
+a1 -> Item{name='artifacDe.0', value='value2', count=5}
+d1 -> Item{name='artifacDe.1', value='value4', count=2}
+f1 -> Item{name='artifacDe.2', value='value6', count=3}
+h1 -> Item{name='artifacDe.10', value='value8', count=1}
+b1 -> Item{name='BswDescr', value='value1', count=10}
+c1 -> Item{name='AUTOSAR_MemMap', value='value3', count=8}
+e1 -> Item{name='FlsBehavior', value='value5', count=7}
+g1 -> Item{name='Fis', value='value7', count=6}
