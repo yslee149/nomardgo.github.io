@@ -86,3 +86,28 @@ for (Item item : items) {
         }
     }
 }
+------
+
+
+private int compareNumbers(String str1, String str2) {
+    List<Integer> numbers1 = extractNumbers(str1);
+    List<Integer> numbers2 = extractNumbers(str2);
+
+    for (int i = 0; i < Math.min(numbers1.size(), numbers2.size()); i++) {
+        int cmp = numbers1.get(i).compareTo(numbers2.get(i));
+        if (cmp != 0) {
+            return cmp;
+        }
+    }
+    return Integer.compare(numbers1.size(), numbers2.size());
+}
+
+private List<Integer> extractNumbers(String str) {
+    List<Integer> numbers = new ArrayList<>();
+    Matcher matcher = Pattern.compile("\\d+").matcher(str);
+    while (matcher.find()) {
+        numbers.add(Integer.parseInt(matcher.group()));
+    }
+    return numbers;
+}
+}
