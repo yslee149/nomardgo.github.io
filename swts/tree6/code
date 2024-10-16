@@ -333,3 +333,32 @@ public class NaturalOrderComparator implements Comparator<String> {
         }
     }
 }
+
+---------
+2.값(value)을 기준으로 정렬하고 싶은 경우:
+
+// Map.Entry<String, Item>의 리스트 생성
+List<Map.Entry<String, Item>> entryList = new ArrayList<>(unsortedMap.entrySet());
+
+// Item의 value 필드를 기준으로 Comparator 구현
+Comparator<Map.Entry<String, Item>> valueComparator = new Comparator<Map.Entry<String, Item>>() {
+    @Override
+    public int compare(Map.Entry<String, Item> e1, Map.Entry<String, Item> e2) {
+        // Item의 value 필드를 기준으로 비교
+        return Integer.compare(e1.getValue().getValue(), e2.getValue().getValue());
+    }
+};
+
+// 리스트 정렬
+entryList.sort(valueComparator);
+
+// 정렬된 순서를 유지하는 LinkedHashMap에 데이터 삽입
+Map<String, Item> valueSortedMap = new LinkedHashMap<>();
+for (Map.Entry<String, Item> entry : entryList) {
+    valueSortedMap.put(entry.getKey(), entry.getValue());
+}
+
+// 정렬된 맵 출력
+for (Map.Entry<String, Item> entry : valueSortedMap.entrySet()) {
+    System.out.println(entry.getKey() + " : " + entry.getValue());
+}
