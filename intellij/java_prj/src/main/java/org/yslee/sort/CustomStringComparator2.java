@@ -212,3 +212,50 @@ public class ApacheNaturalSortItemExample {
         }
     }
 }
+
+-------------------
+
+
+
+
+        import java.util.*;
+        import java.util.regex.*;
+
+public class NaturalOrderComparator implements Comparator<String> {
+    private static final Pattern PATTERN = Pattern.compile("(\\D+)|(\\d+)");
+
+    @Override
+    public int compare(String s1, String s2) {
+        Matcher m1 = PATTERN.matcher(s1.toLowerCase());
+        Matcher m2 = PATTERN.matcher(s2.toLowerCase());
+
+        while (m1.find() && m2.find()) {
+            String part1 = m1.group();
+            String part2 = m2.group();
+
+            int result;
+            if (m1.group(2) != null && m2.group(2) != null) {
+                // 두 부분 모두 숫자인 경우
+                Integer num1 = Integer.parseInt(part1);
+                Integer num2 = Integer.parseInt(part2);
+                result = num1.compareTo(num2);
+            } else {
+                // 문자 부분인 경우
+                result = part1.compareTo(part2);
+            }
+
+            if (result != 0) {
+                return result;
+            }
+        }
+
+        // 남은 부분이 있는 문자열 처리
+        if (m1.find()) {
+            return 1;
+        } else if (m2.find()) {
+            return -1;
+        } else {
+            return 0;
+        }
+    }
+}
