@@ -101,3 +101,114 @@ class AdvancedNaturalOrderComparator implements Comparator<String> {
         return Integer.compare(tokens1.length, tokens2.length);
     }
 }
+
+
+//////////////
+
+
+import org.apache.commons.collections4.ComparatorUtils;
+import org.apache.commons.collections4.comparators.NaturalOrderComparator;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
+
+public class ApacheNaturalSortItemExample {
+    public static void main(String[] args) {
+        List<Item> items = new ArrayList<>();
+        items.add(new Item("artifactDescriptors.0", 10));
+        items.add(new Item("artifactDescriptors.1", 15));
+        items.add(new Item("artifactDescriptors.10", 12));
+        items.add(new Item("artifactDescriptors.2", 5));
+        items.add(new Item("artifactDescriptors.3", 8));
+        items.add(new Item("abcd ", 20));
+
+        System.out.println("초기 리스트:");
+        printList(items);
+
+        // Apache Commons NaturalOrderComparator 사용
+        Comparator<String> naturalComparator = new NaturalOrderComparator();
+        Comparator<Item> itemComparator = Comparator.comparing(Item::getName, naturalComparator)
+                .thenComparingInt(Item::getValue);
+
+        // 순수한 알파벳 문자열을 먼저 오도록 조정
+        Comparator<Item> finalComparator = (item1, item2) -> {
+            boolean item1HasDigits = item1.getName().matches(".*\\d+.*");
+            boolean item2HasDigits = item2.getName().matches(".*\\d+.*");
+
+            if (!item1HasDigits && item2HasDigits) {
+                return -1; // item1이 먼저
+            }
+            if (item1HasDigits && !item2HasDigits) {
+                return 1; // item2가 먼저
+            }
+            // 둘 다 숫자를 포함하거나 둘 다 포함하지 않으면 자연스러운 순서로 비교
+            return naturalComparator.compare(item1.getName(), item2.getName());
+        };
+
+        Collections.sort(items, finalComparator);
+
+        System.out.println("\nApache Commons NaturalOrderComparator로 정렬된 리스트:");
+        printList(items);
+    }
+
+    // 리스트 출력 메소드
+    public static void printList(List<Item> list) {
+        list.forEach(System.out::println);
+    }
+
+    // Item 클래스 정의 (위에서 설명한 대로)
+    static class Item {
+        private String name;
+        private int value;
+
+        public Item(String name, int value) {
+            this.name = name;
+            this.value = value;
+        }
+
+        // Getter 메소드
+        public String getName() {
+            return name;
+        }
+
+        public int getValue() {
+            return value;
+        }
+
+        // Setter 메소드
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public void setValue(int value) {
+            this.value = value;
+        }
+
+        // toString 메소드 오버라이드
+        @Override
+        public String toString() {
+            return "Item{name='" + name + "', value=" + value + '}';
+        }
+
+        // equals 및 hashCode 메소드 오버라이드
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (!(o instanceof Item)) return false;
+
+            Item item = (Item) o;
+
+            if (value != item.value) return false;
+            return name != null ? name.equals(item.name) : item.name == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = name != null ? name.hashCode() : 0;
+            result = 31 * result + value;
+            return result;
+        }
+    }
+}
