@@ -1,0 +1,131 @@
+package com.test;
+
+import java.util.Arrays;
+import java.util.List;
+
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.TreeViewer;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Spinner;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+
+public class TreeDepthExample {
+	public static void main(String[] args) {
+		Display display = new Display();
+		Shell shell = new Shell(display);
+		shell.setText("Tree Depth Example");
+		shell.setSize(500, 400);
+		shell.setLayout(new GridLayout(2, false));
+
+		// TreeViewer 생성
+		TreeViewer treeViewer = new TreeViewer(shell, SWT.BORDER | SWT.V_SCROLL | SWT.H_SCROLL);
+		Tree tree = treeViewer.getTree();
+		GridData treeGridData = new GridData(SWT.FILL, SWT.FILL, true, true, 2, 1);
+		tree.setLayoutData(treeGridData);
+
+		// 콘텐츠 프로바이더 설정
+		treeViewer.setContentProvider(new TreeNodeContentProvider());
+
+		// 레이블 프로바이더 설정
+		treeViewer.setLabelProvider(new LabelProvider() {
+			@Override
+			public String getText(Object element) {
+				if (element instanceof TreeNode) {
+					return ((TreeNode) element).getName();
+				}
+				return super.getText(element);
+			}
+		});
+
+		// 예제 데이터 생성
+		List<TreeNode> rootNodes = createSampleData();
+		treeViewer.setInput(rootNodes);
+
+		// "Expand All" 버튼
+		Button expandButton = new Button(shell, SWT.PUSH);
+		expandButton.setText("Expand All");
+		expandButton.addListener(SWT.Selection, e -> treeViewer.expandAll());
+
+		// "Collapse All" 버튼
+		Button collapseButton = new Button(shell, SWT.PUSH);
+		collapseButton.setText("Collapse All");
+		collapseButton.addListener(SWT.Selection, e -> treeViewer.collapseAll());
+
+		// "Select Depth" 레이블 및 스피너
+		Label depthLabel = new Label(shell, SWT.NONE);
+		depthLabel.setText("Select Depth:");
+		Spinner depthSpinner = new Spinner(shell, SWT.BORDER);
+		depthSpinner.setMinimum(1);
+		depthSpinner.setMaximum(10);
+		depthSpinner.setSelection(2);
+
+		// "Expand to Selected Depth" 버튼
+		Button expandDepthButton = new Button(shell, SWT.PUSH);
+		expandDepthButton.setText("Expand to Selected Depth");
+		expandDepthButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		expandDepthButton.addListener(SWT.Selection, e -> {
+			int depth = depthSpinner.getSelection();
+			expandToDepth(treeViewer.getTree().getItems(), 1, depth);
+		});
+
+		// "Collapse to Selected Depth" 버튼
+		Button collapseDepthButton = new Button(shell, SWT.PUSH);
+		collapseDepthButton.setText("Collapse to Selected Depth");
+		collapseDepthButton.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false, 2, 1));
+		collapseDepthButton.addListener(SWT.Selection, e -> {
+			int depth = depthSpinner.getSelection();
+			collapseToDepth(treeViewer.getTree().getItems(), 1, depth);
+		});
+
+		shell.open();
+		while (!shell.isDisposed()) {
+			if (!display.readAndDispatch())
+				display.sleep();
+		}
+		display.dispose();
+	}
+
+	// 특정 깊이까지 트리를 펼치는 재귀 함수
+	private static void expandToDepth(TreeItem[] items, int currentDepth, int targetDepth) {
+		if (currentDepth > targetDepth)
+			return;
+		for (TreeItem item : items) {
+			item.setExpanded(true);
+			if (item.getItems().length > 0) {
+				expandToDepth(item.getItems(), currentDepth + 1, targetDepth);
+			}
+		}
+	}
+
+	// 특정 깊이까지 트리를 접는 재귀 함수
+	private static void collapseToDepth(TreeItem[] items, int currentDepth, int targetDepth) {
+		if (currentDepth > targetDepth)
+			return;
+		for (TreeItem item : items) {
+			if (currentDepth == targetDepth) {
+				item.setExpanded(false);
+			} else if (item.getItems().length > 0) {
+				collapseToDepth(item.getItems(), currentDepth + 1, targetDepth);
+			}
+		}
+	}
+
+	// 예제 데이터 생성 메서드
+	private static List<TreeNode> createSampleData() {
+		TreeNode child1 = new TreeNode("Child 1",
+				Arrays.asList(new TreeNode("Child 1.1", null), new TreeNode("Child 1.2", null)));
+		TreeNode child2 = new TreeNode("Child 2",
+				Arrays.asList(new TreeNode("Child 2.1", Arrays.asList(new TreeNode("Child 2.1.1", null))),
+						new TreeNode("Child 2.2", null)));
+		TreeNode child3 = new TreeNode("Child 3", null);
+		return Arrays.asList(new TreeNode("Root 1", Arrays.asList(child1, child2)),
+				new TreeNode("Root 2", Arrays.asList(child3)));
+	}
+}
