@@ -1,0 +1,74 @@
+package com.test;
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Shell;
+
+public class CompositeFixedWidthExample {
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("Composite 레이아웃 예제");
+        shell.setSize(500, 200);
+        shell.setLayout(new GridLayout(1, false)); // Shell에 1열 GridLayout 설정
+
+        // Composite 생성
+        Composite composite = new Composite(shell, SWT.BORDER);
+        composite.setLayout(new GridLayout(2, false)); // Composite에 2열 GridLayout 설정
+        composite.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        // 라벨과 버튼 생성 및 고정 가로 크기 설정
+        Label label1 = new Label(composite, SWT.NONE);
+        label1.setText("옵션 A:");
+        GridData label1Data = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+        label1Data.widthHint = 100; // 라벨의 가로 크기를 100 픽셀로 고정
+        label1.setLayoutData(label1Data);
+
+        Button radioA = new Button(composite, SWT.RADIO);
+        radioA.setText("선택지 A1");
+        GridData radioAData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        radioAData.widthHint = 150; // 버튼의 가로 크기를 150 픽셀로 고정
+        radioA.setLayoutData(radioAData);
+
+        Label label2 = new Label(composite, SWT.NONE);
+        label2.setText("옵션 B:");
+        GridData label2Data = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+        label2Data.widthHint = 100; // 라벨의 가로 크기를 100 픽셀로 고정
+        label2.setLayoutData(label2Data);
+
+        Button radioB = new Button(composite, SWT.RADIO);
+        radioB.setText("선택지 B1");
+        GridData radioBData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        radioBData.widthHint = 150; // 버튼의 가로 크기를 150 픽셀로 고정
+        radioB.setLayoutData(radioBData);
+
+        Label label3 = new Label(composite, SWT.NONE);
+        label3.setText("옵션 C:");
+        GridData label3Data = new GridData(SWT.LEFT, SWT.CENTER, false, false);
+        label3Data.widthHint = 100; // 라벨의 가로 크기를 100 픽셀로 고정
+        label3.setLayoutData(label3Data);
+
+        Button radioC = new Button(composite, SWT.RADIO);
+        radioC.setText("선택지 C1");
+        GridData radioCData = new GridData(SWT.FILL, SWT.CENTER, true, false);
+        radioCData.widthHint = 150; // 버튼의 가로 크기를 150 픽셀로 고정
+        radioC.setLayoutData(radioCData);
+
+        // 하단에 추가적인 위젯
+        Label bottomLabel = new Label(shell, SWT.CENTER);
+        bottomLabel.setText("하단 위젯: 잘리지 않도록 설정됨.");
+        bottomLabel.setLayoutData(new GridData(SWT.FILL, SWT.CENTER, true, false));
+
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+        display.dispose();
+    }
+}
