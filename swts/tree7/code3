@@ -1,0 +1,71 @@
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.KeyAdapter;
+import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.dnd.Clipboard;
+import org.eclipse.swt.dnd.TextTransfer;
+import org.eclipse.swt.dnd.Transfer;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+
+public class TreeTableCtrlCExample {
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("TreeTable Ctrl+C Example");
+        shell.setSize(400, 300);
+        shell.setLayout(null);
+
+        // TreeTable 생성
+        Tree treeTable = new Tree(shell, SWT.BORDER | SWT.MULTI | SWT.FULL_SELECTION);
+        treeTable.setBounds(10, 10, 360, 240);
+
+        // 샘플 데이터 추가
+        for (int i = 1; i <= 10; i++) {
+            TreeItem item = new TreeItem(treeTable, SWT.NONE);
+            item.setText("Item " + i);
+            for (int j = 1; j <= 3; j++) {
+                TreeItem child = new TreeItem(item, SWT.NONE);
+                child.setText("Item " + i + "." + j);
+            }
+        }
+
+        // KeyListener 추가
+        treeTable.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if ((e.stateMask & SWT.CTRL) != 0) {
+                    if (e.keyCode == 'c' || e.keyCode == 'C') {
+                        handleCtrlC(treeTable);
+                    }
+                }
+            }
+        });
+
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch())
+                display.sleep();
+        }
+        display.dispose();
+    }
+
+    // Ctrl + C 처리 메소드
+    private static void handleCtrlC(Tree treeTable) {
+        TreeItem[] selection = treeTable.getSelection();
+        if (selection.length == 0) {
+            return;
+        }
+
+        StringBuilder sb = new StringBuilder();
+        for (TreeItem item : selection) {
+            sb.append(item.getText()).append(System.lineSeparator());
+        }
+
+        Clipboard clipboard = new Clipboard(treeTable.getDisplay());
+        TextTransfer textTransfer = TextTransfer.getInstance();
+        clipboard.setContents(new Object[]{sb.toString()}, new Transfer[]{textTransfer});
+        clipboard.dispose();
+    }
+}
