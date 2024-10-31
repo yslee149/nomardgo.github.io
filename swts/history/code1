@@ -144,3 +144,91 @@ public class HistoryTest {
         return currentIndex;
     }
 }
+
+//////////////////////////////////////////////////////////////////////////////////////////////
+
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+class Item {
+    int id;
+    String name;
+
+    public Item(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{id=" + id + ", name='" + name + "'}";
+    }
+}
+
+class HistoryManager {
+    private Map<Integer, Item> historyMap;
+    private List<Integer> keyList;
+    private int currentIndex;
+
+    public HistoryManager() {
+        this.historyMap = new LinkedHashMap<>();
+        this.keyList = new ArrayList<>();
+        this.currentIndex = -1; // 초기 상태: 아무 항목도 선택되지 않음
+    }
+
+    // 새로운 아이템 추가 (키는 순차적이지 않아도 가능)
+    public void addItem(int key, Item item) {
+        historyMap.put(key, item);
+        keyList = new ArrayList<>(historyMap.keySet()); // 순서 갱신
+        currentIndex = keyList.size() - 1; // 새로운 아이템을 추가하면 currentIndex는 마지막으로 설정
+    }
+
+    // Undo 메서드 (외부에서 파라미터 없이 호출)
+    public void undo() {
+        if (currentIndex > 0) {
+            currentIndex--; // 이전 상태로 이동
+            System.out.println("Undo: " + historyMap.get(keyList.get(currentIndex)));
+        } else {
+            System.out.println("No more undo steps available.");
+        }
+    }
+
+    // Redo 메서드 (외부에서 파라미터 없이 호출)
+    public void redo() {
+        if (currentIndex < keyList.size() - 1) {
+            currentIndex++; // 다음 상태로 이동
+            System.out.println("Redo: " + historyMap.get(keyList.get(currentIndex)));
+        } else {
+            System.out.println("No more redo steps available.");
+        }
+    }
+}
+
+public class HistoryTest {
+    public static void main(String[] args) {
+        HistoryManager historyManager = new HistoryManager();
+
+        // 아이템 추가
+        historyManager.addItem(10, new Item(10, "name-10"));
+        historyManager.addItem(5, new Item(5, "name-5"));
+        historyManager.addItem(20, new Item(20, "name-20"));
+        historyManager.addItem(15, new Item(15, "name-15"));
+        historyManager.addItem(25, new Item(25, "name-25"));
+
+        // Undo/Redo 호출
+        historyManager.undo();  // 이전 상태로 이동
+        historyManager.undo();  // 이전 상태로 이동
+        historyManager.redo();  // 다음 상태로 이동
+    }
+}
