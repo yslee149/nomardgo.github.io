@@ -70,3 +70,77 @@ public class HistoryTest {
         return currentKey;
     }
 }
+
+////////////
+
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+class Item {
+    int id;
+    String name;
+
+    public Item(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public String toString() {
+        return "Item{id=" + id + ", name='" + name + "'}";
+    }
+}
+
+public class HistoryTest {
+
+    public static void main(String[] args) {
+        Map<Integer, Item> historyMap = new LinkedHashMap<>();
+
+        // 순차적이지 않은 키로 데이터 추가
+        historyMap.put(10, new Item(10, "name-10"));
+        historyMap.put(5, new Item(5, "name-5"));
+        historyMap.put(20, new Item(20, "name-20"));
+        historyMap.put(15, new Item(15, "name-15"));
+        historyMap.put(25, new Item(25, "name-25"));
+
+        // 키 목록 저장 및 초기 위치 설정
+        List<Integer> keyList = new ArrayList<>(historyMap.keySet());
+        int currentIndex = keyList.size() - 1; // 맨 마지막 요소로 시작
+
+        // Undo/Redo 동작 테스트
+        currentIndex = undo(historyMap, keyList, currentIndex);  // 이전 상태로 이동
+        currentIndex = undo(historyMap, keyList, currentIndex);  // 이전 상태로 이동
+        currentIndex = redo(historyMap, keyList, currentIndex);  // 다음 상태로 이동
+    }
+
+    public static int undo(Map<Integer, Item> historyMap, List<Integer> keyList, int currentIndex) {
+        if (currentIndex > 0) {
+            currentIndex--;  // 이전 상태로 이동
+            System.out.println("Undo: " + historyMap.get(keyList.get(currentIndex)));
+        } else {
+            System.out.println("No more undo steps available.");
+        }
+        return currentIndex;
+    }
+
+    public static int redo(Map<Integer, Item> historyMap, List<Integer> keyList, int currentIndex) {
+        if (currentIndex < keyList.size() - 1) {
+            currentIndex++;  // 다음 상태로 이동
+            System.out.println("Redo: " + historyMap.get(keyList.get(currentIndex)));
+        } else {
+            System.out.println("No more redo steps available.");
+        }
+        return currentIndex;
+    }
+}

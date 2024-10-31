@@ -44,7 +44,7 @@ public class HistoryTest {
 
         // Undo operation
         currentKey = undo(historyMap, currentKey);  // Move to previous state
-        currentKey = undo(historyMap, currentKey);  // Move to previous state
+//        currentKey = undo(historyMap, currentKey);  // Move to previous state
 
         // Redo operation
         currentKey = redo(historyMap, currentKey);  // Move to next state
