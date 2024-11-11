@@ -1,0 +1,122 @@
+package com.example.plugin;
+
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
+
+public class Activator extends AbstractUIPlugin {
+
+    // 플러그인 ID
+    public static final String PLUGIN_ID = "com.example.plugin"; 
+
+    // Activator의 싱글톤 인스턴스
+    private static Activator plugin;
+
+    // 시작 시 호출되는 메서드
+    @Override
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        plugin = this;
+    }
+
+    // 종료 시 호출되는 메서드
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        plugin = null;
+        super.stop(context);
+    }
+
+    // Activator의 싱글톤 인스턴스를 반환
+    public static Activator getDefault() {
+        return plugin;
+    }
+}
+
+
+
+--------------------
+
+package com.example.plugin;
+
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.resource.ImageRegistry;
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
+
+public class Activator extends AbstractUIPlugin {
+
+    // 플러그인 ID
+    public static final String PLUGIN_ID = "com.example.plugin";
+
+    // 싱글톤 인스턴스
+    private static Activator plugin;
+
+    @Override
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        plugin = this;
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        plugin = null;
+        super.stop(context);
+    }
+
+    public static Activator getDefault() {
+        return plugin;
+    }
+
+    // ImageRegistry 초기화
+    @Override
+    protected void initializeImageRegistry(ImageRegistry registry) {
+        super.initializeImageRegistry(registry);
+
+        // 아이콘 등록
+        registry.put("icon_key", imageDescriptorFromPlugin(PLUGIN_ID, "icons/sample.png"));
+        registry.put("another_icon", imageDescriptorFromPlugin(PLUGIN_ID, "icons/another.png"));
+    }
+
+    // ImageDescriptor 가져오기
+    public static ImageDescriptor getImageDescriptor(String key) {
+        return getDefault().getImageRegistry().getDescriptor(key);
+    }
+}
+
+
+----
+
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+
+public class ExampleUI {
+
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setSize(300, 200);
+        shell.setText("AbstractUIPlugin Image Example");
+
+        // 버튼 생성
+        Button button = new Button(shell, SWT.PUSH);
+        button.setBounds(50, 50, 200, 50);
+        button.setText("Click Me");
+
+        // Activator에서 이미지 가져오기
+        Image image = Activator.getDefault().getImageRegistry().get("icon_key");
+        button.setImage(image);
+
+        // Shell 표시
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+
+        display.dispose();
+    }
+}
