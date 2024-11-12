@@ -154,3 +154,40 @@ public class TreeViewerWithButton {
     }
 }
 
+
+
+--
+
+static class ButtonCellEditor extends CellEditor {
+    private Button button;
+
+    public ButtonCellEditor(Composite parent) {
+        super(parent, SWT.NONE);
+        button = new Button(parent, SWT.PUSH);
+        button.setText("Click");
+        button.addListener(SWT.Selection, e -> {
+            fireApplyEditorValue(); // 버튼 클릭 시 값 적용
+        });
+    }
+
+    @Override
+    protected Control createControl(Composite parent) {
+        return button;
+    }
+
+    @Override
+    protected Object doGetValue() {
+        return null; // 버튼에는 반환값이 필요 없음
+    }
+
+    @Override
+    protected void doSetValue(Object value) {
+        // 값 설정 필요 없음
+    }
+
+    @Override
+    protected void doSetFocus() {
+        // TODO Auto-generated method stub
+        
+    }
+}
