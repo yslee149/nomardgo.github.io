@@ -29,3 +29,82 @@ treeViewer.getTree().addListener(SWT.PaintItem, event -> {
 Display.getDefault().disposeExec(() -> {
     cachedImages.values().forEach(Image::dispose);
 });
+
+---------------------
+
+
+
+
+treeViewer.getTree().addListener(SWT.PaintItem, event -> {
+    if (event.index == 0) { // 첫 번째 컬럼
+        TreeItem item = (TreeItem) event.item;
+
+        // 원본 이미지 로드
+        Image originalImage = new Image(Display.getDefault(), "icons/image.png");
+        ImageData originalData = originalImage.getImageData();
+
+        // 셀의 크기
+        int cellWidth = event.width;
+        int cellHeight = event.height;
+
+        // 비율에 따른 이미지 크기 계산
+        int maxDimension = Math.min(cellWidth, cellHeight); // 셀 크기 중 작은 값 기준
+        float scale = Math.min((float) maxDimension / originalData.width, (float) maxDimension / originalData.height);
+
+        int newWidth = Math.round(originalData.width * scale);
+        int newHeight = Math.round(originalData.height * scale);
+
+        // 크기 조정된 이미지 생성
+        ImageData scaledData = originalData.scaledTo(newWidth, newHeight);
+        Image scaledImage = new Image(Display.getDefault(), scaledData);
+
+        // 이미지 중앙 정렬
+        int x = event.x + (cellWidth - newWidth) / 2; // 셀 중앙의 x 좌표
+        int y = event.y + (cellHeight - newHeight) / 2; // 셀 중앙의 y 좌표
+
+        // 이미지 그리기
+        event.gc.drawImage(scaledImage, x, y);
+
+        // 리소스 해제
+        scaledImage.dispose();
+        originalImage.dispose();
+    }
+});
+
+
+--------------
+
+
+
+private final Map<String, Image> imageCache = new HashMap<>();
+
+private Image getScaledImage(String path, int maxDimension) {
+    if (!imageCache.containsKey(path)) {
+        Image originalImage = new Image(Display.getDefault(), path);
+        ImageData originalData = originalImage.getImageData();
+
+        float scale = Math.min((float) maxDimension / originalData.width, (float) maxDimension / originalData.height);
+        int newWidth = Math.round(originalData.width * scale);
+        int newHeight = Math.round(originalData.height * scale);
+
+        ImageData scaledData = originalData.scaledTo(newWidth, newHeight);
+        Image scaledImage = new Image(Display.getDefault(), scaledData);
+
+        imageCache.put(path, scaledImage);
+        originalImage.dispose(); // 원본 해제
+    }
+    return imageCache.get(path);
+}
+
+// 캐싱된 이미지 사용
+treeViewer.getTree().addListener(SWT.PaintItem, event -> {
+    if (event.index == 0) {
+        int maxDimension = Math.min(event.width, event.height);
+        Image image = getScaledImage("icons/image.png", maxDimension);
+
+        int x = event.x + (event.width - image.getBounds().width) / 2;
+        int y = event.y + (event.height - image.getBounds().height) / 2;
+
+        event.gc.drawImage(image, x, y);
+    }
+});
