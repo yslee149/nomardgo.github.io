@@ -1,0 +1,156 @@
+package com.test;
+
+import org.eclipse.jface.viewers.*;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.TreeEditor;
+import org.eclipse.swt.layout.*;
+import org.eclipse.swt.widgets.*;
+
+public class TreeViewerWithButton {
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setLayout(new GridLayout(1, false));
+        shell.setText("TreeViewer with Buttons");
+
+        // TreeViewer 생성
+        TreeViewer treeViewer = new TreeViewer(shell, SWT.BORDER | SWT.FULL_SELECTION);
+        Tree tree = treeViewer.getTree();
+        tree.setHeaderVisible(true);
+        tree.setLinesVisible(true);
+        tree.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+        // 컬럼 추가
+        TreeViewerColumn column1 = new TreeViewerColumn(treeViewer, SWT.NONE);
+        column1.getColumn().setText("Name");
+        column1.getColumn().setWidth(200);
+
+        TreeViewerColumn column2 = new TreeViewerColumn(treeViewer, SWT.NONE);
+        column2.getColumn().setText("Action");
+        column2.getColumn().setWidth(100);
+
+        // LabelProvider 설정
+        column1.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                if (element instanceof TreeNode) {
+                    return ((TreeNode) element).getName();
+                }
+                return super.getText(element);
+            }
+        });
+
+        // 빈 LabelProvider 설정 (Action 컬럼)
+        column2.setLabelProvider(new ColumnLabelProvider() {
+            @Override
+            public String getText(Object element) {
+                return ""; // 텍스트를 표시하지 않음
+            }
+        });
+
+        // ContentProvider 설정
+        treeViewer.setContentProvider(new ITreeContentProvider() {
+            @Override
+            public Object[] getElements(Object inputElement) {
+                return (Object[]) inputElement;
+            }
+
+            @Override
+            public Object[] getChildren(Object parentElement) {
+                if (parentElement instanceof TreeNode) {
+                    return ((TreeNode) parentElement).getChildren();
+                }
+                return new Object[0];
+            }
+
+            @Override
+            public Object getParent(Object element) {
+                if (element instanceof TreeNode) {
+                    return ((TreeNode) element).getParent();
+                }
+                return null;
+            }
+
+            @Override
+            public boolean hasChildren(Object element) {
+                if (element instanceof TreeNode) {
+                    return ((TreeNode) element).getChildren().length > 0;
+                }
+                return false;
+            }
+        });
+
+        // 샘플 데이터
+        TreeNode root1 = new TreeNode("Root 1", null);
+        TreeNode root2 = new TreeNode("Root 2", null);
+
+        TreeNode child1 = new TreeNode("Child 1.1", root1);
+        TreeNode child2 = new TreeNode("Child 1.2", root1);
+
+        root1.setChildren(new TreeNode[]{child1, child2});
+        root2.setChildren(new TreeNode[]{});
+
+        treeViewer.setInput(new TreeNode[]{root1, root2});
+
+        // TreeEditor를 사용하여 버튼 추가
+        for (TreeItem item : tree.getItems()) {
+            addButtonToColumn(tree, item, 1); // 두 번째 컬럼에 버튼 추가
+        }
+
+        shell.setSize(400, 300);
+        shell.open();
+
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        display.dispose();
+    }
+
+    // 버튼을 특정 컬럼에 추가
+    private static void addButtonToColumn(Tree tree, TreeItem item, int columnIndex) {
+        TreeEditor editor = new TreeEditor(tree);
+
+        // 버튼 생성
+        Button button = new Button(tree, SWT.PUSH);
+        button.setText("Click");
+        button.addListener(SWT.Selection, e -> {
+            System.out.println("Button clicked for: " + item.getText(0));
+        });
+
+        // 버튼 크기와 위치 설정
+        editor.minimumWidth = button.computeSize(SWT.DEFAULT, SWT.DEFAULT).x;
+        editor.horizontalAlignment = SWT.CENTER;
+        editor.setEditor(button, item, columnIndex);
+    }
+
+    // TreeNode 클래스 정의
+    static class TreeNode {
+        private String name;
+        private TreeNode parent;
+        private TreeNode[] children;
+
+        public TreeNode(String name, TreeNode parent) {
+            this.name = name;
+            this.parent = parent;
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public TreeNode[] getChildren() {
+            return children != null ? children : new TreeNode[0];
+        }
+
+        public void setChildren(TreeNode[] children) {
+            this.children = children;
+        }
+
+        public TreeNode getParent() {
+            return parent;
+        }
+    }
+}
+
