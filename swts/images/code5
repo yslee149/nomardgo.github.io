@@ -1,21 +1,19 @@
 Tree tree = treeViewer.getTree();
 
-// 선택된 셀 정보를 저장하는 변수
+// 현재 마우스 위치한 셀 정보를 저장
 final Point[] highlightedCell = {null}; // [columnIndex, rowIndex]
 
-// 마우스 이동 이벤트
+// 마우스 이동 이벤트로 셀 추적
 tree.addListener(SWT.MouseMove, event -> {
     Point point = new Point(event.x, event.y);
     TreeItem item = tree.getItem(point);
 
     if (item != null) {
-        int columnCount = tree.getColumnCount();
-        for (int i = 0; i < columnCount; i++) {
+        for (int i = 0; i < tree.getColumnCount(); i++) {
             Rectangle bounds = item.getBounds(i);
             if (bounds.contains(point)) {
-                // 현재 셀의 컬럼과 행을 저장
-                int rowIndex = tree.indexOf(item);
-                highlightedCell[0] = new Point(i, rowIndex);
+                // 선택된 셀(행과 열) 저장
+                highlightedCell[0] = new Point(i, tree.indexOf(item));
                 tree.redraw(); // UI 갱신
                 return;
             }
@@ -29,20 +27,25 @@ tree.addListener(SWT.MouseMove, event -> {
     }
 });
 
-// PaintItem 이벤트로 하이라이팅 효과 추가
+// PaintItem 이벤트로 특정 셀 하이라이팅
 tree.addListener(SWT.PaintItem, event -> {
-    Point highlight = highlightedCell[0];
+    if (highlightedCell[0] != null) {
+        int highlightColumn = highlightedCell[0].x; // 선택된 컬럼 인덱스
+        int highlightRow = highlightedCell[0].y;   // 선택된 행 인덱스
 
-    if (highlight != null && highlight.x == event.index && tree.indexOf((TreeItem) event.item) == highlight.y) {
-        // 하이라이팅 배경 설정
-        event.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
-        event.gc.fillRectangle(event.getBounds());
+        TreeItem item = (TreeItem) event.item;
+
+        // 현재 행이 선택된 행인지 확인
+        if (highlightRow == tree.indexOf(item) && highlightColumn == event.index) {
+            // 선택된 셀 배경 강조
+            event.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+            event.gc.fillRectangle(item.getBounds(event.index));
+        }
     }
 
-    // 기본 텍스트와 이미지 다시 그리기
+    // 기본 텍스트와 이미지 렌더링
     TreeItem item = (TreeItem) event.item;
     Image image = item.getImage(event.index);
-
     if (image != null) {
         Rectangle bounds = item.getBounds(event.index);
         int x = bounds.x + (bounds.width - image.getBounds().width) / 2;
