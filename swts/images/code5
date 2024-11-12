@@ -1,9 +1,9 @@
 Tree tree = treeViewer.getTree();
 
-// 선택된 컬럼 인덱스를 추적
-final int[] highlightedColumn = {-1};
+// 선택된 셀 정보를 저장하는 변수
+final Point[] highlightedCell = {null}; // [columnIndex, rowIndex]
 
-// 마우스 이동 이벤트로 컬럼 추적
+// 마우스 이동 이벤트
 tree.addListener(SWT.MouseMove, event -> {
     Point point = new Point(event.x, event.y);
     TreeItem item = tree.getItem(point);
@@ -13,37 +13,33 @@ tree.addListener(SWT.MouseMove, event -> {
         for (int i = 0; i < columnCount; i++) {
             Rectangle bounds = item.getBounds(i);
             if (bounds.contains(point)) {
-                // 새로운 컬럼에 마우스가 위치하면 하이라이팅
-                if (highlightedColumn[0] != i) {
-                    highlightedColumn[0] = i;
-                    tree.redraw(); // UI 갱신
-                }
+                // 현재 셀의 컬럼과 행을 저장
+                int rowIndex = tree.indexOf(item);
+                highlightedCell[0] = new Point(i, rowIndex);
+                tree.redraw(); // UI 갱신
                 return;
             }
         }
     }
 
-    // 마우스가 컬럼 밖으로 나가면 하이라이팅 초기화
-    if (highlightedColumn[0] != -1) {
-        highlightedColumn[0] = -1;
-        tree.redraw();
+    // 마우스가 셀 밖으로 나가면 초기화
+    if (highlightedCell[0] != null) {
+        highlightedCell[0] = null;
+        tree.redraw(); // UI 갱신
     }
 });
 
-// PaintItem 이벤트로 컬럼 하이라이팅 효과 추가
+// PaintItem 이벤트로 하이라이팅 효과 추가
 tree.addListener(SWT.PaintItem, event -> {
-    int highlightIndex = highlightedColumn[0];
+    Point highlight = highlightedCell[0];
 
-    if (highlightIndex == event.index) {
+    if (highlight != null && highlight.x == event.index && tree.indexOf((TreeItem) event.item) == highlight.y) {
         // 하이라이팅 배경 설정
-        event.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
-        Rectangle bounds = event.getBounds();
-        bounds.x = tree.getColumn(event.index).getWidth() * event.index;
-        bounds.width = tree.getColumn(event.index).getWidth();
-        event.gc.fillRectangle(bounds);
+        event.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+        event.gc.fillRectangle(event.getBounds());
     }
 
-    // 기본 텍스트와 이미지 그리기
+    // 기본 텍스트와 이미지 다시 그리기
     TreeItem item = (TreeItem) event.item;
     Image image = item.getImage(event.index);
 
