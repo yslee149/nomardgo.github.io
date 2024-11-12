@@ -1,0 +1,56 @@
+Tree tree = treeViewer.getTree();
+
+// 선택된 컬럼 인덱스를 추적
+final int[] highlightedColumn = {-1};
+
+// 마우스 이동 이벤트로 컬럼 추적
+tree.addListener(SWT.MouseMove, event -> {
+    Point point = new Point(event.x, event.y);
+    TreeItem item = tree.getItem(point);
+
+    if (item != null) {
+        int columnCount = tree.getColumnCount();
+        for (int i = 0; i < columnCount; i++) {
+            Rectangle bounds = item.getBounds(i);
+            if (bounds.contains(point)) {
+                // 새로운 컬럼에 마우스가 위치하면 하이라이팅
+                if (highlightedColumn[0] != i) {
+                    highlightedColumn[0] = i;
+                    tree.redraw(); // UI 갱신
+                }
+                return;
+            }
+        }
+    }
+
+    // 마우스가 컬럼 밖으로 나가면 하이라이팅 초기화
+    if (highlightedColumn[0] != -1) {
+        highlightedColumn[0] = -1;
+        tree.redraw();
+    }
+});
+
+// PaintItem 이벤트로 컬럼 하이라이팅 효과 추가
+tree.addListener(SWT.PaintItem, event -> {
+    int highlightIndex = highlightedColumn[0];
+
+    if (highlightIndex == event.index) {
+        // 하이라이팅 배경 설정
+        event.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
+        Rectangle bounds = event.getBounds();
+        bounds.x = tree.getColumn(event.index).getWidth() * event.index;
+        bounds.width = tree.getColumn(event.index).getWidth();
+        event.gc.fillRectangle(bounds);
+    }
+
+    // 기본 텍스트와 이미지 그리기
+    TreeItem item = (TreeItem) event.item;
+    Image image = item.getImage(event.index);
+
+    if (image != null) {
+        Rectangle bounds = item.getBounds(event.index);
+        int x = bounds.x + (bounds.width - image.getBounds().width) / 2;
+        int y = bounds.y + (bounds.height - image.getBounds().height) / 2;
+        event.gc.drawImage(image, x, y);
+    }
+});
