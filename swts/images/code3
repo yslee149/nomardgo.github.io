@@ -1,0 +1,31 @@
+private final Map<String, Image> cachedImages = new HashMap<>();
+
+private Image getScaledImage(String path, int width, int height) {
+    String key = path + "_" + width + "x" + height;
+    if (!cachedImages.containsKey(key)) {
+        Image originalImage = new Image(Display.getDefault(), path);
+        ImageData scaledImageData = originalImage.getImageData().scaledTo(width, height);
+        Image scaledImage = new Image(Display.getDefault(), scaledImageData);
+        cachedImages.put(key, scaledImage);
+        originalImage.dispose();
+    }
+    return cachedImages.get(key);
+}
+
+// PaintItem 사용
+treeViewer.getTree().addListener(SWT.PaintItem, event -> {
+    if (event.index == 0) {
+        TreeItem item = (TreeItem) event.item;
+        Image image = getScaledImage("icons/image.png", 16, 16);
+
+        int x = event.x + 5;
+        int y = event.y + 2;
+
+        event.gc.drawImage(image, x, y);
+    }
+});
+
+// 애플리케이션 종료 시 캐싱된 이미지 해제
+Display.getDefault().disposeExec(() -> {
+    cachedImages.values().forEach(Image::dispose);
+});
