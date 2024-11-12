@@ -1,0 +1,53 @@
+Tree tree = treeViewer.getTree();
+
+// 현재 마우스가 위치한 셀 정보를 저장
+final Point[] highlightedCell = {null};
+
+// 마우스 이동 이벤트
+tree.addListener(SWT.MouseMove, event -> {
+    Point point = new Point(event.x, event.y);
+    TreeItem item = tree.getItem(point);
+
+    if (item != null) {
+        int columnCount = tree.getColumnCount();
+        for (int i = 0; i < columnCount; i++) {
+            Rectangle bounds = item.getBounds(i);
+            if (bounds.contains(point)) {
+                // 마우스가 새로운 셀에 진입한 경우
+                highlightedCell[0] = new Point(i, tree.indexOf(item));
+                tree.redraw(); // UI 갱신
+                return;
+            }
+        }
+    }
+
+    // 마우스가 셀 밖으로 이동한 경우
+    if (highlightedCell[0] != null) {
+        highlightedCell[0] = null;
+        tree.redraw(); // UI 갱신
+    }
+});
+
+// PaintItem 이벤트로 하이라이팅 효과 추가
+tree.addListener(SWT.PaintItem, event -> {
+    Point highlight = highlightedCell[0];
+
+    if (highlight != null && highlight.x == event.index && tree.indexOf((TreeItem) event.item) == highlight.y) {
+        // 하이라이팅 배경 설정
+        event.gc.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_GRAY));
+        event.gc.fillRectangle(event.getBounds());
+    }
+
+    // 이미지 다시 그리기
+    TreeItem item = (TreeItem) event.item;
+    Image image = item.getImage(event.index);
+
+    if (image != null) {
+        Rectangle bounds = item.getBounds(event.index);
+        int x = bounds.x + (bounds.width - image.getBounds().width) / 2;
+        int y = bounds.y + (bounds.height - image.getBounds().height) / 2;
+
+        // 이미지 그리기
+        event.gc.drawImage(image, x, y);
+    }
+});
