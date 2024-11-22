@@ -1,0 +1,49 @@
+final int BUTTON_COLUMN_INDEX = 1;
+ViewerCell highlightedCell = null;
+
+TreeViewer treeViewer = new TreeViewer(parent);
+Tree tree = treeViewer.getTree();
+
+treeViewer.setLabelProvider(new ColumnLabelProvider() {
+    @Override
+    public void update(ViewerCell cell) {
+        super.update(cell);
+
+        if (cell.getColumnIndex() == BUTTON_COLUMN_INDEX) {
+            Image buttonImage = ...; // 버튼 이미지 로드
+            cell.setImage(buttonImage);
+
+            if (cell == highlightedCell) {
+                cell.setBackground(Display.getDefault().getSystemColor(SWT.COLOR_YELLOW));
+            } else {
+                cell.setBackground(null);
+            }
+        }
+    }
+});
+
+tree.addListener(SWT.MouseMove, new Listener() {
+    @Override
+    public void handleEvent(Event event) {
+        Point point = new Point(event.x, event.y);
+        ViewerCell cell = treeViewer.getCell(point);
+
+        if (cell != null && cell.getColumnIndex() == BUTTON_COLUMN_INDEX) {
+            tree.setCursor(Display.getDefault().getSystemCursor(SWT.CURSOR_HAND));
+
+            if (highlightedCell != null && highlightedCell != cell) {
+                treeViewer.refresh(highlightedCell.getElement());
+            }
+
+            highlightedCell = cell;
+            treeViewer.refresh(cell.getElement());
+        } else {
+            tree.setCursor(null);
+
+            if (highlightedCell != null) {
+                treeViewer.refresh(highlightedCell.getElement());
+                highlightedCell = null;
+            }
+        }
+    }
+});
