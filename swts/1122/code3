@@ -51,3 +51,6 @@ tree.addListener(SWT.MouseMove, new Listener() {
 
 U+25B7
 U+25BD
+
+U+25C1
+U+25B7
