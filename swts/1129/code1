@@ -379,3 +379,32 @@ public class TreeMapButtonExample {
 --
 
 "No more search results available."
+
+--------
+
+
+public class RemoveFileExtension {
+    public static void main(String[] args) {
+        String fileName = "hello.txt";
+
+        // 확장자 제거
+        String nameWithoutExtension = removeExtension(fileName);
+
+        System.out.println("Original: " + fileName);
+        System.out.println("Without Extension: " + nameWithoutExtension);
+    }
+
+    public static String removeExtension(String fileName) {
+        if (fileName == null || fileName.isEmpty()) {
+            return fileName; // 빈 문자열 처리
+        }
+
+        int lastDotIndex = fileName.lastIndexOf('.');
+        if (lastDotIndex == -1) {
+            return fileName; // 확장자가 없으면 원래 문자열 반환
+        }
+
+        return fileName.substring(0, lastDotIndex); // 마지막 점 이전 부분 반환
+    }
+}
+
