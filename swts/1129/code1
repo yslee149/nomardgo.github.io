@@ -211,3 +211,58 @@ public void expandToDepth(TreeViewer viewer, Object element, int currentDepth, i
 int targetDepth = 2; // 목표 깊이
 Object rootElement = treeViewer.getInput();
 expandToDepth(treeViewer, rootElement, 0, targetDepth);
+
+
+-----------
+
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.widgets.Tree;
+import org.eclipse.swt.widgets.TreeItem;
+
+public class TreeFocusExample {
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setSize(400, 300);
+        shell.setText("Tree Focus Example");
+
+        // Tree 생성
+        Tree tree = new Tree(shell, SWT.BORDER);
+        tree.setBounds(10, 10, 360, 240);
+
+        // TreeItem 생성
+        TreeItem root = new TreeItem(tree, SWT.NONE);
+        root.setText("Root");
+        for (int i = 1; i <= 10; i++) {
+            TreeItem child = new TreeItem(root, SWT.NONE);
+            child.setText("Child " + i);
+        }
+        root.setExpanded(true); // Root를 확장하여 자식 항목 표시
+
+        // 특정 TreeItem으로 포커스 이동
+        Display.getDefault().timerExec(2000, () -> {
+            TreeItem targetItem = root.getItem(5); // "Child 6" 선택
+            if (targetItem != null) {
+                tree.setSelection(new TreeItem[] { targetItem }); // 항목 선택
+                tree.showItem(targetItem); // 스크롤로 해당 항목 표시
+                System.out.println("Focused on: " + targetItem.getText());
+            }
+        });
+
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        display.dispose();
+    }
+}
+
+
+--
+
+treeViewer.setSelection(new StructuredSelection(yourTargetObject), true);
