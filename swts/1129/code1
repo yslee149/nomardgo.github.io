@@ -266,3 +266,55 @@ public class TreeFocusExample {
 --
 
 treeViewer.setSelection(new StructuredSelection(yourTargetObject), true);
+
+--
+
+
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Shell;
+import org.eclipse.swt.events.ShellAdapter;
+import org.eclipse.swt.events.ShellEvent;
+
+public class ShellCloseExample {
+    public static void main(String[] args) {
+        // Display 및 Shell 생성
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("Shell Close Example");
+        shell.setSize(300, 200);
+
+        // ShellListener 추가
+        shell.addShellListener(new ShellAdapter() {
+            @Override
+            public void shellClosed(ShellEvent e) {
+                // 사용자 창 닫기 이벤트 처리
+                System.out.println("X 버튼이 눌렸습니다.");
+
+                // 창 닫기 중단 (필요시)
+                boolean allowClose = askUserForConfirmation();
+                if (!allowClose) {
+                    e.doit = false; // 창 닫기 취소
+                }
+            }
+        });
+
+        // Shell 열기
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        display.dispose();
+    }
+
+    // 사용자 확인을 위한 메서드
+    private static boolean askUserForConfirmation() {
+        // 실제 구현에서는 Dialog를 사용하여 사용자에게 확인 요청 가능
+        System.out.println("창을 닫으시겠습니까? (기본적으로 true)");
+        return true; // 기본적으로 닫기 허용
+    }
+}
+
+
