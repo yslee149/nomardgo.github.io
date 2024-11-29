@@ -119,3 +119,69 @@ treeViewer.setLabelProvider(new ColumnLabelProvider() {
         }
     }
 });
+
+
+--
+
+
+treeViewer.setLabelProvider(new CellLabelProvider() {
+    @Override
+    public void update(ViewerCell cell) {
+        Object element = cell.getElement(); // 데이터 모델 객체
+        TreeViewer viewer = (TreeViewer) cell.getViewer();
+
+        // TreeViewer에서 해당 객체의 확장 상태 확인
+        boolean isExpanded = viewer.getExpandedState(element);
+
+        // 확장 상태에 따라 텍스트 설정
+        if (isExpanded) {
+            cell.setText("📂 " + element.toString()); // 확장된 상태
+        } else {
+            cell.setText("📁 " + element.toString()); // 닫힌 상태
+        }
+    }
+});
+
+
+
+treeViewer.setLabelProvider(new CellLabelProvider() {
+    @Override
+    public void update(ViewerCell cell) {
+        Object element = cell.getElement();
+        Tree tree = treeViewer.getTree();
+
+        // TreeItem 직접 찾기
+        for (TreeItem item : tree.getItems()) {
+            if (item.getData().equals(element)) {
+                boolean isExpanded = item.getExpanded();
+                cell.setText((isExpanded ? "📂 " : "📁 ") + element.toString());
+                break;
+            }
+        }
+    }
+});
+
+
+Map<Object, Boolean> expandedStateCache = new HashMap<>();
+
+treeViewer.addTreeListener(new TreeViewerListener() {
+    @Override
+    public void treeExpanded(TreeExpansionEvent event) {
+        expandedStateCache.put(event.getElement(), true);
+    }
+
+    @Override
+    public void treeCollapsed(TreeExpansionEvent event) {
+        expandedStateCache.put(event.getElement(), false);
+    }
+});
+
+// update()에서 캐시 사용
+treeViewer.setLabelProvider(new CellLabelProvider() {
+    @Override
+    public void update(ViewerCell cell) {
+        Object element = cell.getElement();
+        boolean isExpanded = expandedStateCache.getOrDefault(element, false);
+        cell.setText((isExpanded ? "📂 " : "📁 ") + element.toString());
+    }
+});
