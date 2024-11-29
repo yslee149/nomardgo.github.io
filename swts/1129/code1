@@ -185,3 +185,29 @@ treeViewer.setLabelProvider(new CellLabelProvider() {
         cell.setText((isExpanded ? "📂 " : "📁 ") + element.toString());
     }
 });
+
+
+------------
+
+
+public void expandToDepth(TreeViewer viewer, Object element, int currentDepth, int targetDepth) {
+    if (currentDepth >= targetDepth) {
+        return;
+    }
+
+    // 현재 요소를 확장
+    viewer.setExpandedState(element, true);
+
+    // 자식 요소 순회
+    ITreeContentProvider contentProvider = (ITreeContentProvider) viewer.getContentProvider();
+    Object[] children = contentProvider.getChildren(element);
+
+    for (Object child : children) {
+        expandToDepth(viewer, child, currentDepth + 1, targetDepth);
+    }
+}
+
+
+int targetDepth = 2; // 목표 깊이
+Object rootElement = treeViewer.getInput();
+expandToDepth(treeViewer, rootElement, 0, targetDepth);
