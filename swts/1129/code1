@@ -375,3 +375,7 @@ public class TreeMapButtonExample {
         display.dispose();
     }
 }
+
+--
+
+"No more search results available."
