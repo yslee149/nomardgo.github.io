@@ -1,0 +1,121 @@
+
+
+tree.addTreeListener(new TreeListener() {
+    @Override
+    public void treeExpanded(TreeEvent e) {
+        TreeItem item = (TreeItem) e.item;
+        // 펼쳐질 때 컬럼 텍스트 변경
+        item.setText(0, "Expanded: " + item.getText(0));
+    }
+
+    @Override
+    public void treeCollapsed(TreeEvent e) {
+        TreeItem item = (TreeItem) e.item;
+        // 닫힐 때 컬럼 텍스트 변경
+        item.setText(0, "Collapsed: " + item.getText(0));
+    }
+});
+
+
+
+treeViewer.getTree().addTreeListener(new TreeListener() {
+    @Override
+    public void treeExpanded(TreeEvent e) {
+        TreeItem item = (TreeItem) e.item;
+        item.setText(0, "Expanded: " + item.getText(0));
+    }
+
+    @Override
+    public void treeCollapsed(TreeEvent e) {
+        TreeItem item = (TreeItem) e.item;
+        item.setText(0, "Collapsed: " + item.getText(0));
+    }
+});
+
+
+
+treeViewer.setLabelProvider(new ColumnLabelProvider() {
+    @Override
+    public String getText(Object element) {
+        // 데이터 모델 상태에 따라 컬럼 텍스트 반환
+        MyModel model = (MyModel) element;
+        return model.isExpanded() ? "Expanded: " + model.getName() : "Collapsed: " + model.getName();
+    }
+});
+
+
+
+treeViewer.getTree().addTreeListener(new TreeListener() {
+    @Override
+    public void treeExpanded(TreeEvent e) {
+        TreeItem item = (TreeItem) e.item;
+        MyModel model = (MyModel) item.getData();
+        model.setExpanded(true);
+        treeViewer.update(model, null); // UI 업데이트
+    }
+
+    @Override
+    public void treeCollapsed(TreeEvent e) {
+        TreeItem item = (TreeItem) e.item;
+        MyModel model = (MyModel) item.getData();
+        model.setExpanded(false);
+        treeViewer.update(model, null); // UI 업데이트
+    }
+});
+
+
+-- 유니코드 
+
+1. 열린폴더 : U+1F4C2
+2. 닫힌폴더 : U+1F4C1
+
+3. 닫힌상태 :  U+25B6
+4. 열린상태 : U+25BC
+
+
+📂 U+1F4C2: 열려 있는 폴더
+📁 U+1F4C1: 닫힌 폴더
+
+트리 노드에서 흔히 사용되는 확장/축소 상태 기호:
+
+▶ U+25B6: 오른쪽 화살표 (닫힌 상태)
+▼ U+25BC: 아래쪽 화살표 (열린 상태)
+▲ U+25B2: 위쪽 화살표
+► U+25BA: 오른쪽 화살표 (다른 스타일)
+◀ U+25C0: 왼쪽 화살표
+
+오름 차순 
+🔼 U+1F53C: 위쪽 작은 삼각형
+▲ U+25B2: 위쪽 큰 삼각형
+⬆ U+2B06: 위쪽 화살표
+⇧ U+21E7: 위쪽 굵은 화살표
+
+내림 차순 
+
+🔽 U+1F53D: 아래쪽 작은 삼각형
+▼ U+25BC: 아래쪽 큰 삼각형
+⬇ U+2B07: 아래쪽 화살표
+⇩ U+21E9: 아래쪽 굵은 화살표
+
+
+
+🔼 A-Z (오름차순)
+🔽 Z-A (내림차순)
+
+
+treeViewer.setLabelProvider(new ColumnLabelProvider() {
+    @Override
+    public String getText(Object element) {
+        MyModel model = (MyModel) element;
+        return model.getName();
+    }
+
+    @Override
+    public Image getImage(Object element) {
+        if (isAscending) {
+            return new Image(display, "ascending_icon.png"); // 오름차순 이미지
+        } else {
+            return new Image(display, "descending_icon.png"); // 내림차순 이미지
+        }
+    }
+});
