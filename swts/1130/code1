@@ -1,0 +1,66 @@
+import java.util.*;
+
+class Data {
+    String name1;
+    String value1;
+    String name2;
+    String value2;
+
+    public Data(String name1, String value1, String name2, String value2) {
+        this.name1 = name1;
+        this.value1 = value1;
+        this.name2 = name2;
+        this.value2 = value2;
+    }
+
+    @Override
+    public String toString() {
+        return "Data{name1='" + name1 + "', value1='" + value1 + "', name2='" + name2 + "', value2='" + value2 + "'}";
+    }
+}
+
+public class MapMatchingExample {
+    public static void main(String[] args) {
+        // Map 데이터 준비
+        Map<String, Data> map = new HashMap<>();
+        map.put("key1", new Data("alpha", "100", "beta", "200"));
+        map.put("key2", new Data("gamma", "300", "delta", "400"));
+        map.put("key3", new Data("alpha", "100", "delta", "400"));
+
+        // 검색 값
+        String searchName1 = "alpha";
+        String searchValue1 = "100";
+        String searchName2 = "delta";
+        String searchValue2 = "400";
+
+        // 일치 여부 확인
+        for (Map.Entry<String, Data> entry : map.entrySet()) {
+            Data data = entry.getValue();
+
+            // 전체 일치 여부
+            boolean isFullMatch = searchName1.equals(data.name1) &&
+                                  searchValue1.equals(data.value1) &&
+                                  searchName2.equals(data.name2) &&
+                                  searchValue2.equals(data.value2);
+
+            // 일부 일치 여부 및 필드별 확인
+            List<String> matchingFields = new ArrayList<>();
+            if (searchName1.equals(data.name1)) matchingFields.add("name1");
+            if (searchValue1.equals(data.value1)) matchingFields.add("value1");
+            if (searchName2.equals(data.name2)) matchingFields.add("name2");
+            if (searchValue2.equals(data.value2)) matchingFields.add("value2");
+
+            // 결과 출력
+            System.out.println("Key: " + entry.getKey());
+            System.out.println("Data: " + data);
+            if (isFullMatch) {
+                System.out.println("-> 전체 일치");
+            } else if (!matchingFields.isEmpty()) {
+                System.out.println("-> 일부 일치 (일치한 필드: " + matchingFields + ")");
+            } else {
+                System.out.println("-> 일치하지 않음");
+            }
+            System.out.println();
+        }
+    }
+}
