@@ -69,3 +69,169 @@ public class TreeCopyPasteExample {
         display.dispose();
     }
 }
+
+---
+
+import org.eclipse.swt.*;
+import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.widgets.*;
+
+import java.io.Serializable;
+
+public class TreeCopyPasteCustomData {
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("Tree Copy Paste with Custom Data");
+        shell.setSize(400, 300);
+        shell.setLayout(new FillLayout());
+
+        Tree tree = new Tree(shell, SWT.BORDER | SWT.MULTI);
+        TreeItem root = new TreeItem(tree, SWT.NONE);
+        root.setText("Root");
+
+        // Custom data for each TreeItem
+        for (int i = 1; i <= 5; i++) {
+            TreeItem child = new TreeItem(root, SWT.NONE);
+            child.setText("Child " + i);
+            child.setData(new CustomData("Child " + i, i * 10)); // Assign custom data
+        }
+        root.setExpanded(true);
+
+        // Clipboard for copying data
+        Clipboard clipboard = new Clipboard(display);
+
+        // Add KeyListener for Ctrl + C and Ctrl + V
+        tree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if ((e.stateMask & SWT.CTRL) != 0) {
+                    if (e.keyCode == 'c') {
+                        // Handle Ctrl + C (Copy)
+                        TreeItem[] selectedItems = tree.getSelection();
+                        if (selectedItems.length > 0) {
+                            CustomData[] copiedData = new CustomData[selectedItems.length];
+                            for (int i = 0; i < selectedItems.length; i++) {
+                                copiedData[i] = (CustomData) selectedItems[i].getData();
+                            }
+                            clipboard.setContents(new Object[] { copiedData }, new Transfer[] { CustomDataTransfer.getInstance() });
+                            System.out.println("Copied custom data.");
+                        }
+                    } else if (e.keyCode == 'v') {
+                        // Handle Ctrl + V (Paste)
+                        CustomData[] pastedData = (CustomData[]) clipboard.getContents(CustomDataTransfer.getInstance());
+                        if (pastedData != null) {
+                            for (CustomData data : pastedData) {
+                                TreeItem newItem = new TreeItem(tree, SWT.NONE);
+                                newItem.setText(data.getName());
+                                newItem.setData(data);
+                                System.out.println("Pasted: " + data);
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        clipboard.dispose();
+        display.dispose();
+    }
+}
+
+// Custom Data Class
+class CustomData implements Serializable {
+    private static final long serialVersionUID = 1L;
+
+    private String name;
+    private int value;
+
+    public CustomData(String name, int value) {
+        this.name = name;
+        this.value = value;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public int getValue() {
+        return value;
+    }
+
+    @Override
+    public String toString() {
+        return "CustomData{name='" + name + "', value=" + value + '}';
+    }
+}
+
+// Custom Data Transfer Class
+class CustomDataTransfer extends ByteArrayTransfer {
+    private static final String TYPE_NAME = "custom_data_transfer";
+    private static final int TYPE_ID = registerType(TYPE_NAME);
+    private static final CustomDataTransfer INSTANCE = new CustomDataTransfer();
+
+    public static CustomDataTransfer getInstance() {
+        return INSTANCE;
+    }
+
+    @Override
+    protected int[] getTypeIds() {
+        return new int[] { TYPE_ID };
+    }
+
+    @Override
+    protected String[] getTypeNames() {
+        return new String[] { TYPE_NAME };
+    }
+
+    @Override
+    public void javaToNative(Object object, TransferData transferData) {
+        if (object == null || !(object instanceof CustomData[])) return;
+
+        try {
+            CustomData[] data = (CustomData[]) object;
+            byte[] serializedData = SerializationUtils.serialize(data);
+            super.javaToNative(serializedData, transferData);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public Object nativeToJava(TransferData transferData) {
+        byte[] bytes = (byte[]) super.nativeToJava(transferData);
+        if (bytes == null) return null;
+
+        try {
+            return SerializationUtils.deserialize(bytes);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+}
+
+// Utility Class for Serialization
+class SerializationUtils {
+    public static byte[] serialize(Object obj) throws Exception {
+        try (java.io.ByteArrayOutputStream baos = new java.io.ByteArrayOutputStream();
+             java.io.ObjectOutputStream oos = new java.io.ObjectOutputStream(baos)) {
+            oos.writeObject(obj);
+            return baos.toByteArray();
+        }
+    }
+
+    public static Object deserialize(byte[] bytes) throws Exception {
+        try (java.io.ByteArrayInputStream bais = new java.io.ByteArrayInputStream(bytes);
+             java.io.ObjectInputStream ois = new java.io.ObjectInputStream(bais)) {
+            return ois.readObject();
+        }
+    }
+}
