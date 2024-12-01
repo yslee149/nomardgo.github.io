@@ -235,3 +235,48 @@ class SerializationUtils {
         }
     }
 }
+
+
+---
+
+
+
+public class JsonStringParser {
+    public static void main(String[] args) {
+        String json = "{\"name\": \"John Doe\", \"age\": 30, \"isMarried\": false}";
+
+        // 원하는 키의 값을 추출
+        String name = getValueByKey(json, "name");
+        String age = getValueByKey(json, "age");
+        String isMarried = getValueByKey(json, "isMarried");
+
+        System.out.println("Name: " + name);
+        System.out.println("Age: " + age);
+        System.out.println("Is Married: " + isMarried);
+    }
+
+    public static String getValueByKey(String json, String key) {
+        String keyPattern = "\"" + key + "\":";
+        int startIndex = json.indexOf(keyPattern);
+        if (startIndex == -1) {
+            return null; // 키가 없으면 null 반환
+        }
+
+        startIndex += keyPattern.length(); // 키 다음의 값 시작 인덱스
+        int endIndex;
+
+        if (json.charAt(startIndex) == '\"') {
+            // 값이 문자열인 경우
+            startIndex++; // 따옴표 뒤로 이동
+            endIndex = json.indexOf("\"", startIndex);
+        } else {
+            // 값이 숫자나 boolean인 경우
+            endIndex = json.indexOf(",", startIndex);
+            if (endIndex == -1) {
+                endIndex = json.indexOf("}", startIndex); // 마지막 값 처리
+            }
+        }
+
+        return json.substring(startIndex, endIndex).trim();
+    }
+}
