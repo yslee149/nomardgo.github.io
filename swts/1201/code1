@@ -280,3 +280,51 @@ public class JsonStringParser {
         return json.substring(startIndex, endIndex).trim();
     }
 }
+
+
+--
+
+
+
+public class JsonStringManipulator {
+    public static void main(String[] args) {
+        String json = "{\"name\": \"John Doe\", \"age\": 30, \"isMarried\": false}";
+
+        // 값 수정
+        json = setValueByKey(json, "name", "\"Jane Doe\"");
+        json = setValueByKey(json, "age", "35");
+        json = setValueByKey(json, "isMarried", "true");
+
+        System.out.println("Updated JSON:");
+        System.out.println(json);
+    }
+
+    public static String setValueByKey(String json, String key, String newValue) {
+        String keyPattern = "\"" + key + "\":";
+        int startIndex = json.indexOf(keyPattern);
+        if (startIndex == -1) {
+            return json; // 키가 없으면 변경하지 않고 그대로 반환
+        }
+
+        // 기존 값의 시작 인덱스 계산
+        startIndex += keyPattern.length();
+        int endIndex;
+
+        // 기존 값의 끝 인덱스 계산
+        if (json.charAt(startIndex) == '\"') {
+            // 값이 문자열인 경우
+            startIndex++;
+            endIndex = json.indexOf("\"", startIndex) + 1;
+        } else {
+            // 값이 숫자나 boolean인 경우
+            endIndex = json.indexOf(",", startIndex);
+            if (endIndex == -1) {
+                endIndex = json.indexOf("}", startIndex); // 마지막 값 처리
+            }
+        }
+
+        // 값 변경
+        String updatedJson = json.substring(0, startIndex) + newValue + json.substring(endIndex);
+        return updatedJson;
+    }
+}
