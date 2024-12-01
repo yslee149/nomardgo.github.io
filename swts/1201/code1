@@ -328,3 +328,45 @@ public class JsonStringManipulator {
         return updatedJson;
     }
 }
+
+--
+
+
+import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.widgets.Display;
+
+public class ClipboardUtil {
+
+    private static ClipboardUtil instance; // 싱글톤 인스턴스
+    private Clipboard clipboard;
+
+    // Private Constructor (싱글톤)
+    private ClipboardUtil(Display display) {
+        this.clipboard = new Clipboard(display);
+    }
+
+    // 싱글톤 인스턴스 반환
+    public static ClipboardUtil getInstance(Display display) {
+        if (instance == null) {
+            instance = new ClipboardUtil(display);
+        }
+        return instance;
+    }
+
+    // 클립보드 내용을 완전히 삭제하는 메서드
+    public void clearClipboard() {
+        if (clipboard != null) {
+            clipboard.clearContents(); // 기존 내용을 삭제
+            clipboard.setContents(new Object[] { null }, new Transfer[] { TextTransfer.getInstance() }); // 완전 삭제
+            System.out.println("Clipboard has been completely cleared.");
+        }
+    }
+
+    // 클립보드 리소스 해제
+    public void dispose() {
+        if (clipboard != null && !clipboard.isDisposed()) {
+            clipboard.dispose();
+            System.out.println("Clipboard resources have been released.");
+        }
+    }
+}
