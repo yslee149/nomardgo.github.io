@@ -1,0 +1,71 @@
+import org.eclipse.swt.*;
+import org.eclipse.swt.dnd.*;
+import org.eclipse.swt.events.*;
+import org.eclipse.swt.widgets.*;
+
+public class TreeCopyPasteExample {
+    public static void main(String[] args) {
+        Display display = new Display();
+        Shell shell = new Shell(display);
+        shell.setText("Tree Copy Paste Example");
+        shell.setSize(400, 300);
+        shell.setLayout(new FillLayout());
+
+        Tree tree = new Tree(shell, SWT.BORDER | SWT.MULTI);
+        TreeItem root = new TreeItem(tree, SWT.NONE);
+        root.setText("Root");
+        for (int i = 1; i <= 5; i++) {
+            TreeItem child = new TreeItem(root, SWT.NONE);
+            child.setText("Child " + i);
+        }
+        root.setExpanded(true);
+
+        // Clipboard for copying data
+        Clipboard clipboard = new Clipboard(display);
+
+        // Add KeyListener for handling Ctrl + C and Ctrl + V
+        tree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyPressed(KeyEvent e) {
+                if ((e.stateMask & SWT.CTRL) != 0) {
+                    if (e.keyCode == 'c') {
+                        // Handle Ctrl + C (Copy)
+                        TreeItem[] selectedItems = tree.getSelection();
+                        if (selectedItems.length > 0) {
+                            StringBuilder copiedText = new StringBuilder();
+                            for (TreeItem item : selectedItems) {
+                                copiedText.append(item.getText()).append("\n");
+                            }
+                            TextTransfer textTransfer = TextTransfer.getInstance();
+                            clipboard.setContents(new Object[] { copiedText.toString() }, new Transfer[] { textTransfer });
+                            System.out.println("Copied: " + copiedText);
+                        }
+                    } else if (e.keyCode == 'v') {
+                        // Handle Ctrl + V (Paste)
+                        TextTransfer textTransfer = TextTransfer.getInstance();
+                        String pastedText = (String) clipboard.getContents(textTransfer);
+                        if (pastedText != null) {
+                            String[] lines = pastedText.split("\n");
+                            for (String line : lines) {
+                                if (!line.trim().isEmpty()) {
+                                    TreeItem newItem = new TreeItem(tree, SWT.NONE);
+                                    newItem.setText(line.trim());
+                                    System.out.println("Pasted: " + line.trim());
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        shell.open();
+        while (!shell.isDisposed()) {
+            if (!display.readAndDispatch()) {
+                display.sleep();
+            }
+        }
+        clipboard.dispose();
+        display.dispose();
+    }
+}
