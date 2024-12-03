@@ -1,0 +1,10 @@
+/**
+     * 문자열이 반복적인 데이터인지 확인하는 함수
+     *
+     * @param str 입력 문자열
+     * @return 반복적인 데이터 여부 (true: 반복적, false: 비반복적)
+     */
+    public static boolean isRepetitiveData(String str) {
+        // 정규식을 이용하여 문자열 패턴 확인
+        return str.matches(".*@.*\\.\\d+$");
+    }
