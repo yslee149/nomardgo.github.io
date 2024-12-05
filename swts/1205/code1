@@ -1,0 +1,70 @@
+package hello.world;
+
+import java.util.*;
+import java.util.regex.*;
+
+public class DynamicPatternCheck {
+    public static void main(String[] args) {
+        // 입력 데이터
+        List<String> strings = Arrays.asList(
+                "alue.0",
+                "alue.1",
+                "alue.2",
+                "alue.3",
+                "alue.4",
+                "alue.5",
+                "alue.6"
+        );
+
+        // 함수 호출
+        boolean result = isSequentialPattern(strings);
+        System.out.println("모든 값이 동일한 패턴과 연속적인 숫자인가? " + result);
+    }
+
+    /**
+     * 문자열 리스트가 동일한 접두사를 가지며 연속적인 숫자 패턴인지 확인하는 함수
+     * 
+     * @param strings 확인할 문자열 리스트
+     * @return true: 모든 값이 동일한 패턴과 연속적인 숫자인 경우, false: 그렇지 않은 경우
+     */
+    public static boolean isSequentialPattern(List<String> strings) {
+        if (strings == null || strings.isEmpty()) {
+            return false; // 입력 데이터가 없으면 false 반환
+        }
+
+        // 첫 번째 문자열에서 접두사 추출
+        String first = strings.get(0);
+        String dynamicPrefixPattern = "^(.*)\\.\\d+$"; // 접두사와 숫자 분리
+        Pattern regex = Pattern.compile(dynamicPrefixPattern);
+        Matcher matcher = regex.matcher(first);
+
+        if (!matcher.matches()) {
+            return false; // 첫 번째 문자열이 패턴에 맞지 않으면 false 반환
+        }
+
+        String prefix = matcher.group(1); // 동적 접두사 추출
+
+        // 모든 문자열이 해당 접두사와 숫자 형식인지 확인
+        List<Integer> numbers = new ArrayList<>();
+        for (String s : strings) {
+            Matcher m = regex.matcher(s);
+            if (m.matches() && m.group(1).equals(prefix)) {
+                // 숫자 추출
+                int number = Integer.parseInt(s.substring(prefix.length() + 1));
+                numbers.add(number);
+            } else {
+                return false; // 패턴이 맞지 않는 값이 있으면 false 반환
+            }
+        }
+
+        // 숫자가 연속적으로 증가하는지 확인
+        Collections.sort(numbers); // 숫자 정렬
+        for (int i = 0; i < numbers.size() - 1; i++) {
+            if (numbers.get(i) + 1 != numbers.get(i + 1)) {
+                return false; // 연속적이지 않으면 false 반환
+            }
+        }
+
+        return true; // 모든 조건 만족 시 true 반환
+    }
+}
