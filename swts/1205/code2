@@ -126,3 +126,60 @@ public class SequentialPatternChecker {
         return result;
     }
 }
+
+====
+
+
+public Map<FolderSequenceType, List<FolderInfo>> classifyFolders(List<FolderInfo> folders) {
+    Map<FolderSequenceType, List<FolderInfo>> result = new EnumMap<>(FolderSequenceType.class);
+    result.put(FolderSequenceType.SEQUENTIAL, new ArrayList<>());
+    result.put(FolderSequenceType.NON_SEQUENTIAL, new ArrayList<>());
+
+    if (folders == null || folders.isEmpty()) {
+        return result; // 빈 입력 처리
+    }
+
+    // 접두사별로 그룹화
+    Map<String, List<FolderInfo>> groupedFolders = new HashMap<>();
+
+    for (FolderInfo folder : folders) {
+        String prefix = folder.getPrefix();
+        if (prefix == null || prefix.isEmpty()) {
+            // 접두사가 없는 경우 비순차적으로 처리
+            result.get(FolderSequenceType.NON_SEQUENTIAL).add(folder);
+        } else {
+            // 접두사를 기준으로 그룹화
+            groupedFolders.computeIfAbsent(prefix, k -> new ArrayList<>()).add(folder);
+        }
+    }
+
+    // 그룹별로 순차성 검사
+    for (Map.Entry<String, List<FolderInfo>> entry : groupedFolders.entrySet()) {
+        List<FolderInfo> folderList = entry.getValue();
+
+        // 번호만 추출해서 정렬
+        List<Integer> numbers = new ArrayList<>();
+        for (FolderInfo folder : folderList) {
+            numbers.add(folder.getNumber());
+        }
+        Collections.sort(numbers);
+
+        // 순차성 판단
+        boolean isSequential = true;
+        for (int i = 0; i < numbers.size() - 1; i++) {
+            if (numbers.get(i) + 1 != numbers.get(i + 1)) {
+                isSequential = false;
+                break;
+            }
+        }
+
+        // 결과에 추가
+        if (isSequential) {
+            result.get(FolderSequenceType.SEQUENTIAL).addAll(folderList);
+        } else {
+            result.get(FolderSequenceType.NON_SEQUENTIAL).addAll(folderList);
+        }
+    }
+
+    return result;
+}
