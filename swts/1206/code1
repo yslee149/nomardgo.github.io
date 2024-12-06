@@ -66,3 +66,48 @@ public class StreamNextStringGenerator {
 
 
 
+
+
+------------
+
+package hello.world;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+public class GenerateBasedOnPattern {
+    public static void main(String[] args) {
+        // 기존 데이터
+        List<Integer> data = Arrays.asList(150, 152, 154, 156, 158, 160);
+
+        // 새로운 데이터 생성
+        int additionalCount = 5; // 생성할 데이터 개수
+        boolean includeBase = true; // 기존 데이터 포함 여부
+
+        List<Integer> newData = generateNextValues(data, additionalCount, includeBase);
+
+        System.out.println("전체 데이터: " + newData);
+    }
+
+    public static List<Integer> generateNextValues(List<Integer> baseData, int count, boolean includeBase) {
+        List<Integer> newData = new ArrayList<>();
+
+        if (includeBase) {
+            newData.addAll(baseData); // 기존 데이터 포함
+        }
+
+        // 데이터 간 평균 증감 계산
+        int lastIndex = baseData.size() - 1;
+        int difference = baseData.get(lastIndex) - baseData.get(lastIndex - 1);
+        int startValue = baseData.get(lastIndex);
+
+        // 새 데이터 생성 (기존 데이터 제외)
+        for (int i = 0; i < count; i++) {
+            startValue += difference;
+            newData.add(startValue);
+        }
+
+        return newData;
+    }
+}
