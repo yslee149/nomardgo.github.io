@@ -1,0 +1,55 @@
+package hello.world;
+import java.util.*;
+import java.util.regex.*;
+
+public class SequentialPatternChecker {
+    public static void main(String[] args) {
+        List<String> folders = Arrays.asList("hello-1", "folder.1", "folder.2", "folder.3", "folder.5", "other.1", "abcd", "Aiuto");
+        Map<String, List<String>> result = classifyFolders(folders);
+
+        System.out.println("순차적인 폴더: " + result.get("sequential"));
+        System.out.println("비순차적인 폴더: " + result.get("nonSequential"));
+    }
+
+    /**
+     * 문자열 리스트를 순차적인 폴더와 비순차적인 폴더로 분류하는 함수
+     * 
+     * @param strings 확인할 문자열 리스트
+     * @return 순차적인 폴더: "sequential", 비순차적인 폴더: "nonSequential" 키를 가지는 맵
+     */
+    public static Map<String, List<String>> classifyFolders(List<String> strings) {
+        Map<String, List<String>> result = new HashMap<>();
+        result.put("sequential", new ArrayList<>());
+        result.put("nonSequential", new ArrayList<>());
+
+        if (strings == null || strings.isEmpty()) {
+            return result;
+        }
+
+        String patternStr = "^(.*)\\.(\\d+)$";
+        Pattern pattern = Pattern.compile(patternStr);
+
+        // 패턴 매칭되는 폴더 그룹화
+        Map<String, List<String>> matchedGroups = new HashMap<>();
+
+        // 패턴 매칭 및 분류
+        for (String s : strings) {
+            Matcher matcher = pattern.matcher(s);
+            if (matcher.matches()) {
+                String prefix = matcher.group(1);
+                matchedGroups.computeIfAbsent(prefix, k -> new ArrayList<>()).add(s);
+            } else {
+                // 패턴에 맞지 않으면 비순차적으로 분류
+                result.get("nonSequential").add(s);
+            }
+        }
+
+        // 패턴 매칭된 그룹은 모두 순차적이라고 간주
+        for (List<String> group : matchedGroups.values()) {
+            result.get("sequential").addAll(group);
+        }
+
+        return result;
+    }
+}
+
