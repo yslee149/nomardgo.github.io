@@ -1,0 +1,32 @@
+import java.util.*;
+
+public class GenerateBasedOnPattern {
+    public static void main(String[] args) {
+        // 기존 데이터
+        List<Integer> data = Arrays.asList(150, 152, 154, 156, 158, 160);
+
+        // 새로운 데이터 생성
+        int additionalCount = 5; // 생성할 데이터 개수
+        List<Integer> newData = generateNextValues(data, additionalCount);
+
+        System.out.println("전체 데이터: " + newData);
+    }
+
+    public static List<Integer> generateNextValues(List<Integer> baseData, int count) {
+        List<Integer> newData = new ArrayList<>(baseData);
+
+        // 데이터 간 평균 증감 계산
+        int lastIndex = newData.size() - 1;
+        int difference = newData.get(lastIndex) - newData.get(lastIndex - 1);
+
+        // 새 데이터 생성
+        for (int i = 0; i < count; i++) {
+            int nextValue = newData.get(newData.size() - 1) + difference;
+            newData.add(nextValue);
+        }
+
+        return newData;
+    }
+}
+
+
