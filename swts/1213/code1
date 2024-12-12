@@ -152,3 +152,7 @@ public class Activator implements BundleActivator {
         // 종료 시 필요 시 정리 작업
     }
 }
+
+
+String customProperty = context.getProperty("my.custom.property");
+System.out.println("Custom Property from BundleContext: " + customProperty);
