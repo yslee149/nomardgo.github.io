@@ -156,3 +156,56 @@ public class Activator implements BundleActivator {
 
 String customProperty = context.getProperty("my.custom.property");
 System.out.println("Custom Property from BundleContext: " + customProperty);
+
+
+--
+
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+
+import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.List;
+import java.util.Properties;
+
+public class Activator implements BundleActivator {
+    @Override
+    public void start(BundleContext context) throws Exception {
+        // config.ini 파일 경로 가져오기
+        String configFilePath = System.getProperty("osgi.configuration.area") + "config.ini";
+
+        // 키 값 정의
+        String key = "my.custom.property";
+        String defaultValue = "defaultValue";
+
+        // config.ini에서 값을 읽고 없으면 추가
+        String value = ensurePropertyInConfig(configFilePath, key, defaultValue);
+
+        // 결과 출력
+        System.out.println("Property Value: " + value);
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        // 종료 시 정리 작업 (필요 시 구현)
+    }
+
+    /**
+     * config.ini에서 키 값을 확인하고 없으면 생성
+     *
+     * @param configFilePath config.ini 파일 경로
+     * @param key            확인할 키
+     * @param defaultValue   키가 없을 때 추가할 기본 값
+     * @return 최종 값
+     */
+    private String ensurePropertyInConfig(String configFilePath, String key, String defaultValue) {
+        Properties properties = new Properties();
+
+        try {
+            // 파일이 존재하면 읽기
+            File configFile = new File(configFilePath);
+            if (configFile.exists()) {
+                try (FileInputStream input = new FileInputStream(configFile)) {
+                    properties.load(input);
+                }
