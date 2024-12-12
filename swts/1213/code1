@@ -132,3 +132,23 @@ public class Activator extends AbstractUIPlugin {
         return instance;
     }
 }
+
+
+--
+
+import org.osgi.framework.BundleActivator;
+import org.osgi.framework.BundleContext;
+
+public class Activator implements BundleActivator {
+    @Override
+    public void start(BundleContext context) throws Exception {
+        // 런타임에 시스템 속성 추가
+        System.setProperty("my.custom.property", "myValue");
+        System.out.println("Custom property added to the runtime.");
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        // 종료 시 필요 시 정리 작업
+    }
+}
