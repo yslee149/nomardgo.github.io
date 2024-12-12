@@ -1,0 +1,134 @@
+import java.io.File;
+
+public class EclipseIniPath {
+    public static void main(String[] args) {
+        String eclipseHome = System.getProperty("osgi.install.area");
+        if (eclipseHome != null) {
+            File iniFile = new File(eclipseHome.replace("file:", ""), "eclipse.ini");
+            System.out.println("Eclipse.ini Path: " + iniFile.getAbsolutePath());
+        } else {
+            System.out.println("Eclipse installation directory not found!");
+        }
+    }
+}
+
+----------
+
+plugin/resources/config.propertie
+
+config.properties
+
+app.name=MyPlugin
+app.version=1.0.0
+enable.feature=true
+
+
+3. 설정 파일 읽기
+Java의 Properties 클래스를 사용해 설정 파일을 쉽게 읽어올 수 있습니다.
+
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Properties;
+
+public class ConfigReader {
+    private Properties properties = new Properties();
+
+    public ConfigReader(String filePath) throws IOException {
+        try (FileInputStream inputStream = new FileInputStream(filePath)) {
+            properties.load(inputStream);
+        }
+    }
+
+    public String getValue(String key, String defaultValue) {
+        return properties.getProperty(key, defaultValue);
+    }
+
+    public static void main(String[] args) {
+        try {
+            // 설정 파일 경로 (플러그인 내부에 위치한 경우)
+            String configFilePath = "path/to/config.properties";
+
+            ConfigReader configReader = new ConfigReader(configFilePath);
+            String appName = configReader.getValue("app.name", "DefaultApp");
+            String appVersion = configReader.getValue("app.version", "0.0.0");
+
+            System.out.println("App Name: " + appName);
+            System.out.println("App Version: " + appVersion);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+--
+
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
+import org.eclipse.core.runtime.Platform;
+import org.osgi.framework.Bundle;
+
+public class PluginConfigReader {
+    private Properties properties = new Properties();
+
+    public PluginConfigReader(String fileName) throws IOException {
+        // 현재 플러그인의 번들 가져오기
+        Bundle bundle = Platform.getBundle("com.example.myplugin");
+        
+        // 리소스 경로에서 파일 읽기
+        try (InputStream input = bundle.getEntry(fileName).openStream()) {
+            properties.load(input);
+        }
+    }
+
+    public String getValue(String key, String defaultValue) {
+        return properties.getProperty(key, defaultValue);
+    }
+
+    public static void main(String[] args) {
+        try {
+            PluginConfigReader configReader = new PluginConfigReader("resources/config.properties");
+            String appName = configReader.getValue("app.name", "DefaultApp");
+            System.out.println("App Name: " + appName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+}
+--
+
+
+import org.eclipse.ui.plugin.AbstractUIPlugin;
+import org.osgi.framework.BundleContext;
+
+public class Activator extends AbstractUIPlugin {
+    private static Activator instance;
+
+    @Override
+    public void start(BundleContext context) throws Exception {
+        super.start(context);
+        instance = this;
+
+        // 설정 파일 읽기 로직
+        try {
+            PluginConfigReader configReader = new PluginConfigReader("resources/config.properties");
+            String appName = configReader.getValue("app.name", "DefaultApp");
+            System.out.println("App Name: " + appName);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void stop(BundleContext context) throws Exception {
+        instance = null;
+        super.stop(context);
+    }
+
+    public static Activator getDefault() {
+        return instance;
+    }
+}
