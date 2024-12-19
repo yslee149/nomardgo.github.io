@@ -54,3 +54,25 @@ private void expandChildrenLazy(TreeViewer viewer, Object parent) {
         }
     }
 }
+
+
+---
+
+
+private void expandChildrenLazy(TreeViewer viewer, Object parent) {
+    ILazyTreeContentProvider provider = (ILazyTreeContentProvider) viewer.getContentProvider();
+
+    int childCount = getChildCount(parent); // 자식 개수 가져오기
+    for (int i = 0; i < childCount; i++) {
+        provider.updateElement(parent, i); // Lazy 로드
+        Object child = viewer.getTree().getItem(i).getData();
+        if (child != null) {
+            viewer.setExpandedState(child, true);
+        }
+    }
+}
+
+private int getChildCount(Object parent) {
+    // 부모의 자식 개수를 정확히 반환하도록 구현
+    return yourDataModel.getChildCount(parent);
+}
