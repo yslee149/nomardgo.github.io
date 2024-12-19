@@ -21,3 +21,36 @@ private void expandChildren(TreeViewer viewer, Object parent) {
         }
     }
 }
+
+
+--------
+
+
+treeViewer.addSelectionChangedListener(event -> {
+    IStructuredSelection selection = treeViewer.getStructuredSelection();
+    if (!selection.isEmpty()) {
+        Object selectedElement = selection.getFirstElement();
+
+        // 선택된 노드를 먼저 펼침
+        treeViewer.setExpandedState(selectedElement, true);
+
+        // 선택된 노드의 하위 노드를 Lazy 방식으로 펼침
+        expandChildrenLazy(treeViewer, selectedElement);
+    }
+});
+
+private void expandChildrenLazy(TreeViewer viewer, Object parent) {
+    // 컨텐츠 프로바이더 가져오기
+    ILazyTreeContentProvider provider = (ILazyTreeContentProvider) viewer.getContentProvider();
+
+    // 하위 노드 개수 가져오기
+    int childCount = viewer.getTree().getItemCount(); // 또는 다른 방식으로 자식 개수 계산
+    for (int i = 0; i < childCount; i++) {
+        provider.updateElement(parent, i); // Lazy 로드 호출
+        Object child = viewer.getTree().getItem(i).getData(); // 로드된 데이터 가져오기
+        if (child != null) {
+            viewer.setExpandedState(child, true); // 하위 노드 확장
+            expandChildrenLazy(viewer, child); // 재귀적으로 하위 노드 처리
+        }
+    }
+}
