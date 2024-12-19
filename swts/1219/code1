@@ -76,3 +76,36 @@ private int getChildCount(Object parent) {
     // 부모의 자식 개수를 정확히 반환하도록 구현
     return yourDataModel.getChildCount(parent);
 }
+
+
+--
+
+treeViewer.addSelectionChangedListener(event -> {
+    IStructuredSelection selection = treeViewer.getStructuredSelection();
+    if (!selection.isEmpty()) {
+        Object selectedElement = selection.getFirstElement();
+
+        // 선택된 노드와 하위 노드를 모두 펼치기
+        expandSubTree(treeViewer, selectedElement);
+    }
+});
+
+private void expandSubTree(TreeViewer viewer, Object node) {
+    // 선택한 노드 확장
+    viewer.setExpandedState(node, true);
+
+    // Lazy Loading에서 자식 개수 설정
+    ILazyTreeContentProvider provider = (ILazyTreeContentProvider) viewer.getContentProvider();
+    provider.updateChildCount(node, -1); // -1은 자식 개수 자동 계산
+    int childCount = viewer.getTree().getItemCount(); // 실제 자식 개수 가져오기
+
+    // 자식 노드 순회
+    for (int i = 0; i < childCount; i++) {
+        viewer.getTree().getItem(i).setExpanded(true); // 자식도 펼치기
+    }
+}
+
+
+--
+
+treeViewer.expandToLevel(selectedElement, TreeViewer.ALL_LEVELS);
