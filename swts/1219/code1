@@ -1,0 +1,23 @@
+treeViewer.addSelectionChangedListener(event -> {
+    IStructuredSelection selection = treeViewer.getStructuredSelection();
+    if (!selection.isEmpty()) {
+        Object selectedElement = selection.getFirstElement();
+
+        // 선택된 노드만 펼치기
+        treeViewer.setExpandedState(selectedElement, true);
+
+        // 하위 노드만 펼치기
+        expandChildren(treeViewer, selectedElement);
+    }
+});
+
+private void expandChildren(TreeViewer viewer, Object parent) {
+    ITreeContentProvider provider = (ITreeContentProvider) viewer.getContentProvider();
+    Object[] children = provider.getChildren(parent);
+    if (children != null) {
+        for (Object child : children) {
+            viewer.setExpandedState(child, true);
+            expandChildren(viewer, child); // 재귀적으로 하위 노드 확장
+        }
+    }
+}
