@@ -1,50 +1,391 @@
-/* styles.css */
-
-/* 기본 스타일 */
+/* 기본 리셋 */
+body, h1, p, div, section, header, a, span {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 body {
-  font-family: Arial, sans-serif;
+    font-family: 'Noto Sans KR', Arial, sans-serif;
+    background: #f7f9fb;
+    color: #222;
+    min-height: 100vh;
 }
-
-section {
-  padding: 50px;
-  text-align: center;
-  background-color: #f0f0f0;
-  margin-bottom: 20px;
+.container {
+    max-width: 800px;
+    margin: 60px auto;
+    background: #fff;
+    border-radius: 16px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+    padding: 40px 36px 32px 36px;
 }
-
-header {
-  background-color: #3498db;
-  color: #fff;
-  padding: 20px;
+.main-header {
+    text-align: center;
+    margin-bottom: 32px;
 }
-
-h1 {
-  font-size: 36px;
+.main-header h1 {
+    font-size: 2.1rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #007bff;
 }
-
-h2 {
-  font-size: 28px;
+.subtitle {
+    font-size: 1.1rem;
+    color: #555;
 }
-
-p {
-  font-size: 18px;
+.download-section {
+    margin-top: 10px;
 }
-
-/* 화면 너비가 768px 미만일 때 스타일 */
-@media (max-width: 767px) {
-  section {
-    padding: 30px;
-  }
-
-  h1 {
-    font-size: 24px;
-  }
-
-  h2 {
-    font-size: 20px;
-  }
-
-  p {
-    font-size: 16px;
-  }
+.file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+.file-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f1f5fa;
+    border-radius: 8px;
+    padding: 16px 18px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.03);
+    flex-wrap: nowrap;
+    gap: 0;
+}
+.file-item .download-btn,
+.file-item .status-badge {
+    margin-left: 18px;
+    min-width: 120px;
+    text-align: center;
+}
+.file-name {
+    font-size: 1.08rem;
+    font-weight: 500;
+    color: #333;
+}
+.file-realname {
+    font-size: 0.93rem;
+    color: #aaa;
+    margin-top: 1px;
+}
+.file-info {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    margin-right: 18px;
+    flex: 1;
+}
+.file-title {
+    font-size: 1.08rem;
+    font-weight: 600;
+    color: #222;
+}
+.file-desc {
+    font-size: 0.97rem;
+    color: #666;
+    margin-top: 2px;
+}
+.download-btn {
+    background: #007bff;
+    color: #fff;
+    padding: 9px 22px;
+    border-radius: 6px;
+    text-decoration: none;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: background 0.2s;
+    box-shadow: 0 2px 8px rgba(0,123,255,0.08);
+}
+.download-btn:hover {
+    background: #0056b3;
+}
+.notice {
+    margin-top: 12px;
+    font-size: 1.01rem;
+    color: #e67e22;
+    font-weight: 500;
+}
+.warning-box {
+    background: #fff7e6;
+    border: 1.5px solid #ffd591;
+    border-radius: 8px;
+    padding: 16px 18px 12px 18px;
+    margin-top: 18px;
+    margin-bottom: 10px;
+}
+.warning-title {
+    font-size: 1.04rem;
+    font-weight: 600;
+    color: #e67e22;
+    margin-bottom: 8px;
+}
+.warning-list {
+    margin-left: 18px;
+    margin-bottom: 8px;
+    color: #b26a00;
+    font-size: 0.98rem;
+}
+.warning-list li {
+    background: #fffbe6;
+    color: #e67e22;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 10px 12px 10px 32px;
+    margin-bottom: 10px;
+    position: relative;
+    font-size: 1.01rem;
+}
+.warning-list li::before {
+    content: '⚠️';
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.1em;
+}
+.warning-desc {
+    font-size: 0.97rem;
+    color: #b26a00;
+    margin-top: 4px;
+}
+.status-badge {
+    display: inline-block;
+    background: #e0e0e0;
+    color: #555;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 6px;
+    padding: 8px 20px;
+    margin-left: 10px;
+    margin-top: 4px;
+    letter-spacing: 0.02em;
+}
+.status-badge:contains('개발 검토 중') {
+    background: #e3f0ff;
+    color: #1976d2;
+}
+.file-item.cancelled {
+    text-decoration: line-through;
+    color: #bbb !important;
+    opacity: 0.7;
+    background: #f5f5f5;
+}
+.status-badge.status-cancelled {
+    background: #ffdddd;
+    color: #d32f2f;
+    font-weight: 700;
+}
+.status-badge.status-planned {
+    background: #e0e0e0;
+    color: #555;
+    font-weight: 600;
+}
+.status-badge.status-review {
+    background: #fff7cc;
+    color: #b8860b;
+    font-weight: 700;
+}
+.file-item .status-badge.status-review {
+    margin-left: 18px;
+    min-width: 120px;
+    text-align: center;
+}
+.modal-open-btn {
+    background: #e67e22;
+    color: #fff;
+    border: none;
+    border-radius: 6px;
+    padding: 10px 24px;
+    font-size: 1.05rem;
+    font-weight: 600;
+    margin-top: 18px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+.modal-open-btn:hover {
+    background: #cf711f;
+}
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0,0,0,0.35);
+    justify-content: center;
+    align-items: center;
+}
+.modal.active {
+    display: flex;
+}
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    padding: 28px 22px 20px 22px;
+    max-width: 95vw;
+    width: 370px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+    position: relative;
+    text-align: left;
+}
+.modal-content h2 {
+    font-size: 1.18rem;
+    color: #e67e22;
+    margin-bottom: 12px;
+}
+.modal-close {
+    position: absolute;
+    top: 12px;
+    right: 18px;
+    font-size: 1.5rem;
+    color: #888;
+    cursor: pointer;
+    font-weight: bold;
+}
+.modal-close:hover {
+    color: #d32f2f;
+}
+.status-legend {
+    margin: 18px 0 0 0;
+    padding: 16px 18px 10px 18px;
+    background: #f8fafd;
+    border-radius: 10px;
+    box-shadow: 0 1px 6px rgba(0,0,0,0.04);
+    font-size: 1.01rem;
+    text-align: left;
+    max-width: 420px;
+    margin-left: auto;
+    margin-right: auto;
+}
+.legend-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 7px;
+    font-size: 1.01rem;
+}
+.legend-row:last-child {
+    margin-bottom: 0;
+}
+.legend-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.01em;
+    font-weight: 700;
+    width: 90px;
+    min-width: 90px;
+    height: 32px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+    text-align: center;
+}
+.legend-download {
+    background: #007bff;
+    color: #fff;
+}
+.legend-planned {
+    background: #e0e0e0;
+    color: #555;
+}
+.legend-review {
+    background: #fff7cc;
+    color: #b8860b;
+}
+.legend-cancelled {
+    background: #ffdddd;
+    color: #d32f2f;
+}
+.legend-desc {
+    flex: 1;
+    word-break: keep-all;
+    padding-left: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+@media (max-width: 600px) {
+    .container {
+        max-width: 98vw;
+        margin: 16px 1vw;
+        padding: 18px 6px 14px 6px;
+    }
+    .main-header h1 {
+        font-size: 1.3rem;
+    }
+    .file-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 10px;
+        padding: 12px 8px;
+    }
+    .file-info {
+        margin-right: 0;
+    }
+    .file-item .download-btn,
+    .file-item .status-badge {
+        margin-left: 0;
+        width: 100%;
+        min-width: 0;
+        text-align: center;
+    }
+    .file-item .status-badge.status-review {
+        margin-left: 0;
+        width: 100%;
+        min-width: 0;
+        text-align: center;
+    }
+    .modal-content {
+        width: 96vw;
+        padding: 18px 6vw 16px 6vw;
+        text-align: left;
+    }
+    .modal-content h2 {
+        font-size: 1.05rem;
+    }
+    .warning-list {
+        margin-left: 0;
+        margin-bottom: 8px;
+        color: #b26a00;
+        font-size: 0.98rem;
+        text-align: left;
+        list-style-position: inside;
+    }
+    .warning-list li {
+        font-size: 0.97rem;
+        padding: 9px 6px 9px 30px;
+    }
+    .warning-list li::before {
+        left: 6px;
+        font-size: 1em;
+    }
+    .warning-desc {
+        font-size: 0.97rem;
+        color: #b26a00;
+        margin-top: 4px;
+        text-align: left;
+    }
+    .status-legend {
+        font-size: 0.97rem;
+        padding: 10px 4vw 8px 4vw;
+        max-width: 98vw;
+    }
+    .legend-icon {
+        width: 44px;
+        min-width: 44px;
+        font-size: 1em;
+    }
+    .legend-row {
+        gap: 6px;
+    }
+    .legend-badge {
+        width: 70px;
+        min-width: 70px;
+        height: 28px;
+        font-size: 0.97em;
+    }
+    .legend-desc {
+        font-size: 0.97em;
+    }
 }
