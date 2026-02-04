@@ -9,6 +9,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600;700&family=Nanum+Myeongjo:wght@700&display=swap" rel="stylesheet">
   <style>
+    /* ====== 디자인 시스템 색상 ====== */
     :root {
       --bg: #0b1913;
       --bg-alt: #10251b;
@@ -23,6 +24,7 @@
       --shadow: 0 24px 70px rgba(5, 20, 15, 0.55);
     }
 
+    /* 기본 리셋 */
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { scroll-behavior: smooth; }
     body {
@@ -33,6 +35,7 @@
       overflow-x: hidden;
     }
 
+    /* 배경 레이어: 그라데이션 + 은은한 빛 */
     body::before,
     body::after {
       content: '';
@@ -54,6 +57,7 @@
       opacity: 0.9;
     }
 
+    /* 전체 컨테이너 */
     .wrap {
       position: relative;
       z-index: 1;
@@ -62,6 +66,7 @@
       padding: 0 24px 80px;
     }
 
+    /* 상단 헤더 */
     header {
       display: flex;
       justify-content: space-between;
@@ -87,6 +92,7 @@
 
     nav a:hover { color: var(--accent); }
 
+    /* 히어로(첫 화면) 영역 */
     .hero {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -167,6 +173,7 @@
       transform: translateY(-2px);
     }
 
+    /* 우측 이미지 카드 */
     .hero-media {
       position: relative;
       border-radius: 24px;
@@ -192,6 +199,7 @@
       transform: scale(1.02);
     }
 
+    /* 이미지 위에 얹는 설명 배지 */
     .hero-stats {
       position: absolute;
       left: 24px;
@@ -211,6 +219,7 @@
       backdrop-filter: blur(6px);
     }
 
+    /* 섹션 공통 여백 */
     section {
       padding: 64px 0;
     }
@@ -228,12 +237,14 @@
       margin-bottom: 40px;
     }
 
+    /* 기능 카드 그리드 */
     .features {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
       gap: 20px;
     }
 
+    /* 단일 기능 카드 */
     .feature-card {
       background: var(--card);
       border: 1px solid var(--line);
@@ -266,6 +277,7 @@
       color: var(--muted);
     }
 
+    /* 사용 방법(분할 레이아웃) */
     .split {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
@@ -283,6 +295,7 @@
 
     .split p { color: var(--muted); }
 
+    /* 단계 카드 모음 */
     .steps {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -306,6 +319,7 @@
       margin-bottom: 8px;
     }
 
+    /* 하단 다운로드 강조 박스 */
     .bottom-cta {
       text-align: center;
       background: var(--card);
@@ -324,6 +338,7 @@
       margin-bottom: 24px;
     }
 
+    /* 푸터 */
     footer {
       margin-top: 56px;
       padding-top: 24px;
@@ -349,6 +364,7 @@
       color: var(--muted);
     }
 
+    /* 등장 애니메이션 */
     .fade-up {
       animation: fadeUp 0.8s ease both;
     }
@@ -362,11 +378,13 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* 모션 최소화 설정 */
     @media (prefers-reduced-motion: reduce) {
       .fade-up, .delay-1, .delay-2, .delay-3 { animation: none; }
       .cta, .ghost, .feature-card { transition: none; }
     }
 
+    /* 모바일 화면 대응 */
     @media (max-width: 720px) {
       header { flex-direction: column; align-items: flex-start; gap: 14px; }
       nav a { margin-left: 0; margin-right: 16px; }
@@ -379,6 +397,7 @@
 </head>
 <body>
   <div class="wrap">
+    <!-- 상단 네비게이션 -->
     <header>
       <span class="logo">PlantMate</span>
       <nav>
@@ -389,6 +408,7 @@
     </header>
 
     <main>
+      <!-- 히어로 섹션 -->
       <section class="hero">
         <div>
           <span class="hero-badge fade-up">AI 식물 분석 · 정원 관리 · 물주기 알림</span>
@@ -408,6 +428,7 @@
         </div>
       </section>
 
+      <!-- 주요 기능 -->
       <section id="features">
         <h2 class="section-title">핵심 기능</h2>
         <p class="section-desc">식물 인식부터 관리까지, PlantMate 하나면 루틴이 간단해집니다.</p>
@@ -435,6 +456,7 @@
         </div>
       </section>
 
+      <!-- 사용 방법 -->
       <section id="how">
         <div class="split">
           <div>
@@ -461,6 +483,7 @@
         </div>
       </section>
 
+      <!-- 다운로드 CTA -->
       <section id="download">
         <div class="bottom-cta">
           <h2>지금 바로 시작해 보세요</h2>
@@ -471,6 +494,7 @@
       </section>
     </main>
 
+    <!-- 푸터 -->
     <footer>
       <span class="logo">PlantMate</span>
       <div class="footer-links">
